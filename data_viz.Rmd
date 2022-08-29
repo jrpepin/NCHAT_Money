@@ -1,0 +1,296 @@
+---
+title: "A Visualization of U.S. Couples' Money Arrangements"
+author: "Joanna R. Pepin"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+bibliography: references.json
+---
+
+# Abstract
+Using newly available nationally representative U.S. data from the [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417), this visualization presents 2020-2021 estimates of couples' (n = 3,537) money arrangements by marital status, parental status, age group, and for different-gender and same-gender couples. It shows cohabiting couples continue to be much less likely than married couples to pool all their money, and the size of the gap does not appear to vary substantially by parental status or age group. Among married couples, 66% of different-gender couples put all their money together, compared with 45% of women partnered with women, and 50% of men partnered with men.     
+  
+  
+### Keywords  
+money, couples, marriage, cohabitation, visualization  
+  
+  
+--- 
+  
+A survey experiment showed the most commonly selected money arrangement for a fictional couple was to combine some money together and keep some money separately (@pepin_beliefs_2019). Whether U.S. couples’ behaviors have changed in ways consistent with these public beliefs has remained an open empirical question because the most recent publicly available data on U.S. couples' money arrangements comes from the 2012 International Social Survey Programme Family and Changing Gender Roles module. This has hindered understanding of crucial knowledge about societal trends families' pursuit of autonomy over collectivism. Couples’ treatment of money also has important substantive implications regarding relationship quality and persistent gender inequality within families (@gladstone_pooling_2022). Until now, a comparison between different-gender and same-gender couples has been unobtainable using nationally representative survey data.  
+  
+Figure 1 shows updated estimates of couples’ approaches to money using 2020-2021 data available from National Couples' Health and Time Study, a nationally representative sample of married and cohabiting couples living in the United States (n = 3,537). Couples' money arrangements are presented for key demographic groups, including marital status, parental status, age group (ages 20-60), and for different-gender and same-gender couples. The results are disaggregated by legal marital status, as marriage has consistently been found to be the determining characteristic influencing couples' integration of money (@eickmeyer_whats_2019). Replication code for data access and variable construction are available at [github repository redacted for peer review].  
+  
+Each panel in the figure contains a waffle chart consisting of 100 smaller squares colored according to the proportion of couples who report they (1) put all of their money together, (2) put some money together, or (3) keep all of their money separately. Differences by marital status are apparent, with 66% of married couples reporting they pool everything compared with 23% of cohabiting couples taking a complete pooling approach. The marriage-cohabitation gap remains visible across sub-groups and relatively consistent within sub-groups, with one exception. Two-thirds of different-gender married couples put all of their money together compared with 50% of men partnered with men and 45% of women partnered with women. 
+  
+  
+```{r setup, echo = FALSE}
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+
+## WARNING: Remove the leading # to install packages below first time. 
+## Change filepaths below first time
+
+  # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
+  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") #install waffle package not on CRAN
+  # install.packages("pacman")       # Install pacman package if not installed
+  # remotes::install_github("paleolimbot/rbbt") # for Zotero citations in RStudio
+
+# Installs and loads packages automatically
+library("pacman")                  # Load pacman package
+
+# Install packages not yet installed & load them
+pacman::p_load(
+       here,       # relative file paths
+       devtools,   # loading github packages
+       foreign,    # read data
+       dplyr,      # variable processing
+       forcats,    # reverse factor variables
+       srvyr,      # calc % with survey weights
+       MESS,       # round prop & preserve sum to 100%
+       gtsummary,  # pretty weighted tables
+       ggplot2,    # graphing
+       colorspace) # color palettes   
+
+library("waffle")                 
+library("icpsrdata")
+
+```
+  
+  
+```{r packages, echo = FALSE}
+# Set the project directory to the current working directory.
+# Change the filepath to where the data was downloaded.
+projDir <- here::here()                             # File path to this project's directory
+dataDir <- "C:/Users/Joanna/Dropbox/Data/NCHAT"     # File path to where data will be downloaded
+
+```
+  
+  
+```{r data-1, echo=FALSE, eval = FALSE}
+# The icpsr_download function will ask for the login information required by ICPSR: the user’s email and password.
+## URL for manual download: https://www.icpsr.umich.edu/web/DSDR/studies/38417
+icpsr_download( file_id = 38417,
+                download_dir = file.path(dataDir))
+```
+  
+  
+```{r data-2, echo=FALSE, results= 'hide'}
+# Load the data and create a new dataframe containing only the variables of interest.  
+
+load(file=file.path(dataDir, "ICPSR_38417/DS0001", '38417-0001-Data.rda'))
+
+data <- da38417.0001 %>%
+  select(RESPONSEID, WEIGHT_MAINRESPONDENT, 
+         Q40,       # money treatment
+         MARITAL_1, # legal marital status
+         C18D_B,    # parent identifier {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
+         D2, HHR5,  # couple type
+         AGE_SD)
+
+```
+  
+  
+```{r vars, echo=FALSE}
+### creates a function so level order remains the same as argument order
+fct_case_when <- function(...) {
+  args <- as.list(match.call())
+  levels <- sapply(args[-1], function(f) f[[3]])  # extract RHS of formula
+  levels <- levels[!is.na(levels)]
+  factor(dplyr::case_when(...), levels=levels)
+}
+
+## Variables
+data <- data %>%
+  mutate(
+    # money treatment
+    money = fct_case_when(
+      Q40 == "(3) Put all of our money together"     ~ "Put all money together",
+      Q40 == "(2) Put some money together"           ~ "Put some money together",
+      Q40 == "(1) We keep all of our money separate" ~ "Keep all money separate"),
+    # marital status
+    marco = fct_case_when(
+      MARITAL_1  == "(1) Legal marriage"             ~ "Married",
+      TRUE                                           ~ "Cohabiting"),
+    # parental status
+    parent = fct_case_when(
+      !is.na(C18D_B)                                 ~ "Parenting",
+      TRUE                                           ~ "Not parenting"),
+    # couple type
+    couple = fct_case_when(
+     (D2 == "(1) Man"   & HHR5 == "(2) Woman")       |
+     (D2 == "(2) Woman" & HHR5 == "(1) Man")         ~ "Different-gender",
+      D2 == "(2) Woman" & HHR5 == "(2) Woman"        ~ "Woman-woman",
+      D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
+    # age
+    age = fct_case_when(
+      AGE_SD == "(1) 18-34"                          ~ "Age: 18-34",
+      AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-69"))
+
+```
+  
+  
+```{r survey, echo=FALSE, results='hide'}
+
+waffle_svy <- data %>%
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
+  drop_na() %>% # drop respondents with any missing data
+  as_survey_design(id = RESPONSEID,
+                   weights = WEIGHT_MAINRESPONDENT)
+
+waffle_svy %>%
+  select(c(-RESPONSEID, -WEIGHT_MAINRESPONDENT)) %>%
+  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
+                 label = list(money    ~ "Money Treatment",
+                              marco    ~ "Marital Status",
+                              parent   ~ "Parental Status",
+                              couple   ~ "Couple Type",
+                              age      ~ "Age"))
+ 
+```
+<p>  
+  
+  
+  
+```{r waffle-1, echo=FALSE, results='hide'}
+
+# all -- just for reference
+df0 <- waffle_svy %>%
+  group_by( money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% # create summary proportions
+  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp))
+
+# marital status
+df1 <- waffle_svy %>%
+  group_by(marco, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% # create summary proportions
+  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp), 
+         group    = "parent",
+         subgroup = "All")
+
+# parents
+df2 <- waffle_svy %>%
+  group_by(marco,parent, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         group    = "parent") %>%
+  rename(subgroup = parent)
+
+# couple type
+df3 <- waffle_svy %>%
+  group_by(marco,couple, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         group    = "couple") %>%
+  rename(subgroup = couple)
+
+# age groups
+df4 <- waffle_svy %>%
+  group_by(marco,age, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         group    = "age") %>%
+  rename(subgroup = age)
+
+# Combine datasets
+waffle_data <- df1 %>%
+  full_join(df2) %>%
+  full_join(df3) %>%
+  full_join(df4) %>%
+    mutate(group = as_factor(group),
+    subgroup = as_factor(subgroup))
+
+head(waffle_data, n = 10) # to check results
+
+```
+  
+```{r waffle-2, echo=FALSE, results='hide'}
+# Prep the data for plotting
+
+## Create a combo variable because geom_waffle doesn't work with facet_grid()
+waffle_data$c<-paste0(as.character(waffle_data$marco),"\n", as.character(waffle_data$subgroup))
+
+waffle_data$c <- factor(waffle_data$c, 
+                              levels = c("Married\nAll", "Married\nParenting", "Married\nNot parenting",
+                                         "Cohabiting\nAll", "Cohabiting\nParenting", "Cohabiting\nNot parenting",
+                                         "Married\nDifferent-gender", "Married\nWoman-woman", "Married\nMan-man",
+                                         "Cohabiting\nDifferent-gender", "Cohabiting\nWoman-woman", "Cohabiting\nMan-man",
+                                         "Married\nAge: 18-34", "Married\nAge: 35-50", "Married\nAge: 51-69",
+                                         "Cohabiting\nAge: 18-34", "Cohabiting\nAge: 35-50", "Cohabiting\nAge: 51-69"), 
+                              ordered = FALSE)
+
+## Create a variable for plotting the values & correct top rows
+waffle_data$yaxis <- round(waffle_data$vals/10) 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nParenting" & 
+                  waffle_data$money == "Keep all money separate"] <- 4 # correction re: rounded off chart
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nNot parenting" & 
+                  waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
+waffle_data$yaxis[waffle_data$c == "Married\nWoman-woman" & 
+                  waffle_data$money == "Keep all money separate"] <- 3 # move up a row 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nDifferent-gender" & 
+                  waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 18-34" & 
+                  waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 51-69" & 
+                  waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
+
+```
+  
+```{r waffle-3, echo = FALSE, fig.align='center', fig.width=6.5, fig.height=6.5}
+
+p1<- waffle_data %>%
+  ggplot(aes(fill = money, values = vals)) +
+  geom_waffle(color = "white", size = .2, n_rows = 10, flip = TRUE) +
+  geom_text(aes(x=1.1, y=yaxis, label=vals), 
+            color    = "black", 
+            size     = 3,
+            fontface ="bold",
+            position = position_stack(reverse = TRUE)) +
+  facet_wrap(vars(c), ncol = 6) +
+  scale_fill_manual(values = qualitative_hcl(3, palette = "Dark 3")) +
+  coord_fixed(ratio = 1) +
+#  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
+  theme_minimal() +
+  theme(panel.grid      = element_blank(),
+        axis.title      = element_blank(),
+        axis.text.x     = element_blank(),
+        axis.text.y     = element_blank(),
+        legend.title    = element_blank(),
+        plot.title.position   = "plot",
+        plot.caption.position =  "plot",
+        panel.spacing         = unit(0, "lines"),
+        plot.subtitle         = element_text(face = "italic"),
+        legend.position       = "top") +
+  labs(#       title = "Couples' treatment of money by demographic characteristic",
+       #       subtitle = "% of couples who _____________",
+       caption = "Source: National Couples' Health and Time Study (U.S.), 2020-2021")
+
+p1
+```
+__Figure 1.__  U.S. couples' money arrangements by demographic groups (n = 3,537)  
+_NOTE:_ The figure displays the percentage of U.S. couples (20-60 years old) who selected each money arrangement for all couples and by marital status, age category, couple-gender type, and parental status.
+
+```{r fig-1, echo=FALSE, eval = FALSE}
+# save the image as png file
+ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, units="in", dpi=300)
+```
+  
+  
+<p>    
+  
+  
+Changing partnership trends, such as couples more often cohabiting before marrying, attitude data (@pepin_beliefs_2019), behavioral estimates from outside the U.S. (@hu_divergent_2021), and from non-representative U.S. samples (@bank_of_america_better_2018), all suggest younger couples may be more likely than their older counterparts to keep their finances separate. Yet, the money arrangements look remarkably similar across age groups. About two-thirds of married couples pull their money, regardless of age, compared with less than one-quarter of cohabitors.  
+  
+Overall, the figure suggests that U.S. couples’ money arrangements remain remarkably differentiated by marital status and cohort change is less apparent than expected based on empirical data from other contexts and composition changes among U.S. families that are associated with a reduction in pooled finances. These bivariate descriptive statistics open many possibilities of using NCHAT data to answer further questions related to U.S. couples’ treatment of money that have so far remained elusive.  
+  
+  
+# References
+
