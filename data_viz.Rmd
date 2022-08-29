@@ -64,8 +64,8 @@ library("icpsrdata")
 ```{r packages, echo = FALSE}
 # Set the project directory to the current working directory.
 # Change the filepath to where the data was downloaded.
-projDir <- here::here()                             # File path to this project's directory
-dataDir <- "C:/Users/Joanna/Dropbox/Data/NCHAT"     # File path to where data will be downloaded
+projDir <- here::here()             # File path to this project's directory
+dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
 
 ```
   
@@ -87,7 +87,8 @@ data <- da38417.0001 %>%
   select(RESPONSEID, WEIGHT_MAINRESPONDENT, 
          Q40,       # money treatment
          MARITAL_1, # legal marital status
-         C18D_B,    # parent identifier {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
+         C18D_B,    # parent identifier using skip logic
+                    # {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
          D2, HHR5,  # couple type
          AGE_SD)
 
@@ -255,7 +256,7 @@ p1<- waffle_data %>%
             fontface ="bold",
             position = position_stack(reverse = TRUE)) +
   facet_wrap(vars(c), ncol = 6) +
-  scale_fill_manual(values = qualitative_hcl(3, palette = "Dark 3")) +
+  scale_fill_manual(values = sequential_hcl(3, palette = "OrYel")) +
   coord_fixed(ratio = 1) +
 #  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
   theme_minimal() +
@@ -289,7 +290,7 @@ ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, u
   
 Changing partnership trends, such as couples more often cohabiting before marrying, attitude data (@pepin_beliefs_2019), behavioral estimates from outside the U.S. (@hu_divergent_2021), and from non-representative U.S. samples (@bank_of_america_better_2018), all suggest younger couples may be more likely than their older counterparts to keep their finances separate. Yet, the money arrangements look remarkably similar across age groups. About two-thirds of married couples pull their money, regardless of age, compared with less than one-quarter of cohabitors.  
   
-Overall, the figure suggests that U.S. couples’ money arrangements remain remarkably differentiated by marital status and cohort change is less apparent than expected based on empirical data from other contexts and composition changes among U.S. families that are associated with a reduction in pooled finances. These bivariate descriptive statistics open many possibilities of using NCHAT data to answer further questions related to U.S. couples’ treatment of money that have so far remained elusive.  
+Overall, the figure suggests that U.S. couples’ money arrangements remain starkly differentiated by marital status and cohort differences are less apparent than expected based on empirical data from other contexts and composition changes among U.S. families that are associated with a reduction in pooled finances. These bivariate descriptive statistics open many possibilities of using NCHAT data to answer further questions related to U.S. couples’ treatment of money that have so far remained elusive.  
   
   
 # References

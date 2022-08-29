@@ -1,13 +1,12 @@
 #------------------------------------------------------------------------------------
 # NCHAT_Money
 # 00_$$_dataviz.R
-# Joanna Pepin
 #------------------------------------------------------------------------------------
 
 # PACKAGES --------------------------------------------------------------------------
 
-## WARNING: Remove the leading # to install packages below first time. 
-## Change filepaths below first time
+## WARNING: Remove the leading # to install packages below one time. 
+## Change filepaths below one time
 
   # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
   # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") # install waffle package not on CRAN
@@ -32,14 +31,14 @@ pacman::p_load(
 library("waffle")                 
 library("icpsrdata")
 
-# FILEPATHS --------------------------------------------------------------------------
+# FILEPATHS ----------------------------------------------------------------------
 
 ## Set the project directory to the current working directory.
 ## Change the filepath to where the data was downloaded.
-projDir <- here::here()                             # File path to this project's directory
-dataDir <- "C:/Users/Joanna/Dropbox/Data/NCHAT"     # File path to where data will be downloaded
+projDir <- here::here()             # File path to this project's directory
+dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
 
-# DATA -------------------------------------------------------------------------------
+# DATA ---------------------------------------------------------------------------
 ## The icpsr_download function will be ask for the login information required by ICPSR: the user’s email and password.
 ## An optional setup step is to add the login information ICPSR requires to your .Rprofile as in the following example:
 ## options("icpsr_email" = "juanita-herrera@uppermidwest.edu",
@@ -55,7 +54,8 @@ data <- da38417.0001 %>%
   select(RESPONSEID, WEIGHT_MAINRESPONDENT, 
          Q40,       # money treatment
          MARITAL_1, # legal marital status
-         C18D_B,    # parent identifier {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
+         C18D_B,    # parent identifier using skip logic
+                    # {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
          D2, HHR5,  # couple type
          AGE_SD)
 
@@ -207,7 +207,7 @@ p1<- waffle_data %>%
             fontface ="bold",
             position = position_stack(reverse = TRUE)) +
   facet_wrap(vars(c), ncol = 6) +
-  scale_fill_manual(values = qualitative_hcl(3, palette = "Dark 3")) +
+  scale_fill_manual(values = sequential_hcl(3, palette = "OrYel")) +
   coord_fixed(ratio = 1) +
   #  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
   theme_minimal() +
