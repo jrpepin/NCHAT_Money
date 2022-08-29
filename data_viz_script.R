@@ -91,9 +91,9 @@ data <- data %>%
       D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
     # age
     age = fct_case_when(
-      AGE_SD == "(1) 18-34"                          ~ "Age: 18-34",
+      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34", # change bottom code to match codebook
       AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
-      AGE_SD == "(3) 51-69"                          ~ "Age: 51-69"))
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) # change top code to match codebook
 
 ## Set as survey data
 waffle_svy <- data %>%
@@ -178,8 +178,8 @@ waffle_data$c <- factor(waffle_data$c,
                                    "Cohabiting\nAll", "Cohabiting\nParenting", "Cohabiting\nNot parenting",
                                    "Married\nDifferent-gender", "Married\nWoman-woman", "Married\nMan-man",
                                    "Cohabiting\nDifferent-gender", "Cohabiting\nWoman-woman", "Cohabiting\nMan-man",
-                                   "Married\nAge: 18-34", "Married\nAge: 35-50", "Married\nAge: 51-69",
-                                   "Cohabiting\nAge: 18-34", "Cohabiting\nAge: 35-50", "Cohabiting\nAge: 51-69"), 
+                                   "Married\nAge: 20-34", "Married\nAge: 35-50", "Married\nAge: 51-60",
+                                   "Cohabiting\nAge: 20-34", "Cohabiting\nAge: 35-50", "Cohabiting\nAge: 51-60"), 
                         ordered = FALSE)
 
 ## Create a variable for plotting the values & correct top rows
@@ -192,9 +192,9 @@ waffle_data$yaxis[waffle_data$c == "Married\nWoman-woman" &
                     waffle_data$money == "Keep all money separate"] <- 3 # move up a row 
 waffle_data$yaxis[waffle_data$c == "Cohabiting\nDifferent-gender" & 
                     waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
-waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 18-34" & 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 20-34" & 
                     waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
-waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 51-69" & 
+waffle_data$yaxis[waffle_data$c == "Cohabiting\nAge: 51-60" & 
                     waffle_data$money == "Keep all money separate"] <- 6 # move up a row 
 
 ## CREATE THE PLOT

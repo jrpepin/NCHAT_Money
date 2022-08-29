@@ -129,15 +129,15 @@ data <- data %>%
       D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
     # age
     age = fct_case_when(
-      AGE_SD == "(1) 18-34"                          ~ "Age: 18-34",
+      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34", # change bottom code to match codebook
       AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
-      AGE_SD == "(3) 51-69"                          ~ "Age: 51-69"))
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) # change top code to match codebook
 ```
   
   
 # Sample  
 
-This data visualization is based on same- and different-gender U.S. couples aged 18-60 who have no missing information regarding their money arrangements, marital and parental status, and age group. The final sample size includes 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
+This data visualization is based on same- and different-gender U.S. couples aged 20-60 who have no missing information regarding their money arrangements, marital and parental status, and age group. The final sample size includes 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
   
 ```{r survey}
 
