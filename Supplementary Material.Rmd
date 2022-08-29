@@ -1,0 +1,223 @@
+---
+title: "Supplementary Material"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+bibliography: references.json
+---
+  
+```{r setup, echo = FALSE}
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+
+## WARNING: Remove the leading # to install packages below first time. 
+## Change filepaths below first time
+
+  # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
+  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git")                               # install waffle package not on CRAN
+  # install.packages("pacman")                                                                    # Install pacman package if not installed
+
+# Installs and loads packages automatically
+library("pacman")                  # Load pacman package
+
+# Install packages not yet installed & load them
+pacman::p_load(
+       here,       # relative file paths
+       devtools,   # loading github packages
+       foreign,    # read data
+       dplyr,      # variable processing
+       forcats,    # reverse factor variables
+       srvyr,      # calc % with survey weights
+       MESS,       # round prop & preserve sum to 100%
+       gtsummary,  # pretty weighted tables
+       ggplot2,    # graphing
+       colorspace) # color palettes   
+
+library("waffle")                 
+library("icpsrdata")
+
+```
+  
+  
+```{r packages, echo = FALSE}
+# Set the project directory to the current working directory.
+# Change the filepath to where the data was downloaded.
+projDir <- here::here()             # File path to this project's directory
+dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
+
+```
+  
+  
+# Data  
+This visualization uses population-based U.S. data from the 2020-2021 [National Couples' Health and Time Study (NCHAT)](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel, including an over sample of sexual and gender diverse families. When weighted, the survey provides nationally representative data on cohabiting and married individuals (ages 20-60 years old).  
+  
+```{r data-1, echo=FALSE, eval = FALSE}
+# The icpsr_download function will ask for the login information required by ICPSR: the user’s email and password.
+## URL for manual download: https://www.icpsr.umich.edu/web/DSDR/studies/38417
+icpsr_download( file_id = 38417,
+                download_dir = file.path(dataDir))
+```
+  
+```{r data-2, echo=FALSE, results= 'hide'}
+# Load the data and create a new dataframe containing only the variables of interest.  
+
+load(file=file.path(dataDir, "ICPSR_38417/DS0001", '38417-0001-Data.rda'))
+
+data <- da38417.0001 %>%
+  select(RESPONSEID, WEIGHT_MAINRESPONDENT, 
+         Q40,       # money treatment
+         MARITAL_1, # legal marital status
+         C18D_B,    # parent identifier using skip logic
+                    # {ends_with("HHR16"), starts_with("A1_HHR17_"), starts_with("A1_HHR18_") is masked by ICPSR]}
+         D2, HHR5,  # couple type
+         AGE_SD)
+```
+  
+  
+# Measures  
+```{r vars-1, echo=FALSE}
+### creates a function so level order remains the same as argument order
+fct_case_when <- function(...) {
+  args <- as.list(match.call())
+  levels <- sapply(args[-1], function(f) f[[3]])  # extract RHS of formula
+  levels <- levels[!is.na(levels)]
+  factor(dplyr::case_when(...), levels=levels)
+}
+```
+  
+  
+## _Money arrangement_  
+Respondents were told: "Couples handle their money differently. Which of the following do you do?" The response choices include: (2) We keep all of our money separately, (2) put some money together, or (3) Put all of our money together.  .2% (n = 6) of respondents refused to answer the question item.  
+
+##  _Marital status_
+This visualization uses legal marriage status to differentiate married and cohabiting couples. Respondents who answered affirmatively when asked "Have you and your current spouse/partner ever experienced any of the following with each other? Legal marriage" were considered legally married. 4 respondents refused to answer the question.   
+  
+## _Parental status_  
+The direct parent identifiers are only available through a restricted Virtual Data Enclave, requiring institutional IRB approval and an application. With reproducibility a priority, parents were instead identified using the skip logic of a publically available variable asking how stressed the respondent is dividing childcare with their partner. Respondents who were not shown the question (C18D_B) were determined to be not-parenting and those shown the question were coded as parenting.  
+  
+## _Couple type_  
+Two variables were used to identify the couple type: D2 (Which of the following best describes your gender?) and and HHR5 (How would [Field-HHP1] describe their gender?). Men who reported their partner's gender was women (and vise versa) were coded as different-gender couples. Men who reported their partner's gender was a man were coded as same-gender. The same was true for women identified respondents. Respondents who chose another gender for themselves or their partners were removed from this data visualization.  
+  
+## _Age group_
+The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three categories: (1) 18-34, (2) 35-50, or (3) 51-69. The refusal rate for this item was 1.6% (n = 57).  
+  
+```{r vars-2}
+
+## Process variables
+data <- data %>%
+  mutate(
+    # money treatment
+    money = fct_case_when(
+      Q40 == "(3) Put all of our money together"     ~ "Put all money together",
+      Q40 == "(2) Put some money together"           ~ "Put some money together",
+      Q40 == "(1) We keep all of our money separate" ~ "Keep all money separate"),
+    # marital status
+    marco = fct_case_when(
+      MARITAL_1  == "(1) Legal marriage"             ~ "Married",
+      TRUE                                           ~ "Cohabiting"),
+    # parental status
+    parent = fct_case_when(
+      !is.na(C18D_B)                                 ~ "Parenting",
+      TRUE                                           ~ "Not parenting"),
+    # couple type
+    couple = fct_case_when(
+     (D2 == "(1) Man"   & HHR5 == "(2) Woman")       |
+     (D2 == "(2) Woman" & HHR5 == "(1) Man")         ~ "Different-gender",
+      D2 == "(2) Woman" & HHR5 == "(2) Woman"        ~ "Woman-woman",
+      D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
+    # age
+    age = fct_case_when(
+      AGE_SD == "(1) 18-34"                          ~ "Age: 18-34",
+      AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-69"))
+```
+  
+  
+# Sample  
+
+This data visualization is based on same- and different-gender U.S. couples aged 18-60 who have no missing information regarding their money arrangements, marital and parental status, and age group. The final sample size includes 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
+  
+```{r survey}
+
+waffle_svy <- data %>%
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
+  drop_na() %>% # drop respondents with any missing data
+  as_survey_design(id = RESPONSEID,
+                   weights = WEIGHT_MAINRESPONDENT)
+
+waffle_svy %>%
+  select(c(-RESPONSEID, -WEIGHT_MAINRESPONDENT)) %>%
+  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
+                 label = list(money    ~ "Money Treatment",
+                              marco    ~ "Marital Status",
+                              parent   ~ "Parental Status",
+                              couple   ~ "Couple Type",
+                              age      ~ "Age"))
+ 
+```
+  
+<p>  
+<p>    
+  
+  
+The bivariate statistics were constructed using the survey provided variable (WEIGHT_MAINRESPONDENT) to correct for over/under sampling of specific target populations. 
+  
+```{r waffle-1, results='hide'}
+
+# all -- just for reference
+df0 <- waffle_svy %>%
+  group_by( money) %>%
+  # create summary proportions
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% 
+  # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp))
+
+# marital status
+df1 <- waffle_svy %>%
+  group_by(marco, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% 
+  mutate(vals     = MESS::round_percent(vals),
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp), 
+         group    = "parent",
+         subgroup = "All")
+
+# parents
+df2 <- waffle_svy %>%
+  group_by(marco,parent, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), 
+         group    = "parent") %>%
+  rename(subgroup = parent)
+
+# couple type
+df3 <- waffle_svy %>%
+  group_by(marco,couple, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), 
+         group    = "couple") %>%
+  rename(subgroup = couple)
+
+# age groups
+df4 <- waffle_svy %>%
+  group_by(marco,age, money) %>%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
+  mutate(vals     = MESS::round_percent(vals), 
+         group    = "age") %>%
+  rename(subgroup = age)
+
+# Combine datasets
+waffle_data <- df1 %>%
+  full_join(df2) %>%
+  full_join(df3) %>%
+  full_join(df4) %>%
+    mutate(group = as_factor(group),
+    subgroup = as_factor(subgroup))
+
+```
+  
+Replication code for data access, variable construction, and creating the data visualization are available at [github repository redacted for peer review].  

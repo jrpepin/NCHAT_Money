@@ -162,16 +162,18 @@ waffle_svy %>%
 # all -- just for reference
 df0 <- waffle_svy %>%
   group_by( money) %>%
-  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% # create summary proportions
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  # create summary proportions
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% 
+  # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          vals_low = MESS::round_percent(vals_low), 
          vals_upp = MESS::round_percent(vals_upp))
 
 # marital status
 df1 <- waffle_svy %>%
   group_by(marco, money) %>%
-  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% # create summary proportions
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>% 
+  mutate(vals     = MESS::round_percent(vals), 
          vals_low = MESS::round_percent(vals_low), 
          vals_upp = MESS::round_percent(vals_upp), 
          group    = "parent",
@@ -181,7 +183,7 @@ df1 <- waffle_svy %>%
 df2 <- waffle_svy %>%
   group_by(marco,parent, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = "parent") %>%
   rename(subgroup = parent)
 
@@ -189,7 +191,7 @@ df2 <- waffle_svy %>%
 df3 <- waffle_svy %>%
   group_by(marco,couple, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = "couple") %>%
   rename(subgroup = couple)
 
@@ -197,7 +199,7 @@ df3 <- waffle_svy %>%
 df4 <- waffle_svy %>%
   group_by(marco,age, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = "age") %>%
   rename(subgroup = age)
 
