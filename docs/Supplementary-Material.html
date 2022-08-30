@@ -1639,24 +1639,23 @@ pre code {
 
 <div id="data" class="section level1">
 <h1>Data</h1>
-<p>This visualization uses population-based U.S. data from the 2020-2021
+<p>This visualization uses population-based U.S. data from the 2020–2021
 <a href="https://www.icpsr.umich.edu/web/DSDR/studies/38417">National
-Couples’ Health and Time Study (NCHAT)</a>. The Eunice Kennedy Shriver
-National Institute of Child Health and Human Development (NICHD)
-supported the data collection of 3,639 partnered individuals through the
-Gallup Panel, including an over sample of sexual and gender diverse
-families. When weighted, the survey provides nationally representative
-data on different-gender and same-gender couples (ages 20-60 years old)
-who co-reside or are married.</p>
+Couples’ Health and Time Study</a>. The Eunice Kennedy Shriver National
+Institute of Child Health and Human Development (NICHD) supported the
+data collection of 3,639 partnered individuals through the Gallup Panel,
+including an over sample of sexual and gender diverse families. When
+weighted, the survey provides nationally representative data on
+cohabiting and married individuals (aged 20-60).</p>
 </div>
 <div id="measures" class="section level1">
 <h1>Measures</h1>
 <div id="money-arrangement" class="section level2">
 <h2><em>Money arrangement</em></h2>
 <p>Respondents were told: “Couples handle their money differently. Which
-of the following do you do?” The response choices include: (2) We keep
-all of our money separately, (2) put some money together, or (3) Put all
-of our money together. .2% (n = 6) of respondents refused to answer the
+of the following do you do?” The response choices were: (1) We keep all
+of our money separately, (2) Put some money together, or (3) Put all of
+our money together. Only 6 (.2%) respondents refused to answer the
 question item.</p>
 </div>
 <div id="marital-status" class="section level2">
@@ -1665,34 +1664,38 @@ question item.</p>
 married and cohabiting couples. Respondents who answered affirmatively
 when asked “Have you and your current spouse/partner ever experienced
 any of the following with each other? Legal marriage” were considered
-legally married. 4 respondents refused to answer the question.</p>
+legally married. Four respondents refused to answer the question.</p>
 </div>
 <div id="parental-status" class="section level2">
 <h2><em>Parental status</em></h2>
-<p>The direct parent identifiers are restricted at this time, only
-available through a Virtual Data Enclave requiring IRB approval and an
-application. With reproducibility a priority, instead parents were
-identified using the skip logic for a variable asking how stressed the
-respondent is dividing childcare. Respondents who were not shown the
-question (C18D_B) were identified as not-parenting and those shown the
-question were coded as parenting.</p>
+<p>The direct parent identifiers are only available through a restricted
+Virtual Data Enclave, requiring institutional IRB approval and an
+application. With reproducibility a priority, parents were instead
+identified using the skip logic of a publicly available variable on
+respondents’ stress over dividing childcare with their partner.
+Respondents who were not shown the question (C18D_B) were determined to
+be not-parenting and those shown the question were coded as
+parenting.</p>
 </div>
 <div id="couple-type" class="section level2">
-<h2><em>Couple Type</em></h2>
+<h2><em>Couple type</em></h2>
 <p>Two variables were used to identify the couple type: D2 (Which of the
-following best describes your gender?) and and HHR5 (How would
-[Field-HHP1] describe their gender?). Men who reported their partner’s
-gender was women (and vise versa) were coded as different-gender
-couples. Men who reported their partner’s gender was a man were coded as
-same-gender. The same was true for women identified respondents.
-Respondents who chose another gender for themselves or their partners
-were removed from this data visualization.</p>
+following best describes your gender?) and HHR5 (How would [Field-HHP1]
+describe their gender?). Women who reported their partner was a man (and
+vice versa) were coded as different-gender couples. Men who reported
+their partner was a man and women who reported their partner was a woman
+were coded as same-gender couples. Respondents who chose another gender
+for themselves or their partners were not included in this data
+visualization.</p>
 </div>
 <div id="age-group" class="section level2">
-<h2><em>Age Group</em></h2>
+<h2><em>Age group</em></h2>
 <p>The survey contained a variable (AGE_SD) indicating the respondents’
-age was between one of three categories: (1) 18-34, (2) 35-50, or (3)
-51-69. The refusal rate for this item was 1.6% (n = 57).</p>
+age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69.
+The codebook and another variable (AGE_SD_2CAT) indicate the possible
+age range for main respondents is 20-60. Therefore, the categories were
+recoded to reflect the true top/bottom ages (partner’s age may be
+younger/older). The refusal rate for this item was 1.6% (n = 57).</p>
 <pre class="r"><code>## Process variables
 data &lt;- data %&gt;%
   mutate(
@@ -1717,17 +1720,17 @@ data &lt;- data %&gt;%
       D2 == &quot;(1) Man&quot;   &amp; HHR5 == &quot;(1) Man&quot;          ~ &quot;Man-man&quot;),
     # age
     age = fct_case_when(
-      AGE_SD == &quot;(1) 18-34&quot;                          ~ &quot;Age: 18-34&quot;,
+      AGE_SD == &quot;(1) 18-34&quot;                          ~ &quot;Age: 20-34&quot;, # change bottom code to match codebook
       AGE_SD == &quot;(2) 35-50&quot;                          ~ &quot;Age: 35-50&quot;,
-      AGE_SD == &quot;(3) 51-69&quot;                          ~ &quot;Age: 51-69&quot;))</code></pre>
+      AGE_SD == &quot;(3) 51-69&quot;                          ~ &quot;Age: 51-60&quot;)) # change top code to match codebook</code></pre>
 </div>
 </div>
 <div id="sample" class="section level1">
 <h1>Sample</h1>
 <p>This data visualization is based on same- and different-gender U.S.
-couples aged 18-60 who have no missing information regarding their money
+couples aged 20–60 who had no missing information regarding their money
 arrangements, marital and parental status, and age group. The final
-sample size includes 3,537 partnered individuals. More details about the
+sample included 3,537 partnered individuals. More details about the
 sample recruitment can be found <a href="https://osf.io/preprints/socarxiv/p8a34/">online</a>.</p>
 <pre class="r"><code>waffle_svy &lt;- data %&gt;%
   select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %&gt;%
@@ -1743,12 +1746,12 @@ waffle_svy %&gt;%
                               parent   ~ &quot;Parental Status&quot;,
                               couple   ~ &quot;Couple Type&quot;,
                               age      ~ &quot;Age&quot;))</code></pre>
-<div id="unqqnhlgsl" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="mowyqtooom" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#unqqnhlgsl .gt_table {
+#mowyqtooom .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1773,7 +1776,7 @@ waffle_svy %&gt;%
   border-left-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_heading {
+#mowyqtooom .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1785,7 +1788,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_title {
+#mowyqtooom .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1797,7 +1800,7 @@ waffle_svy %&gt;%
   border-bottom-width: 0;
 }
 
-#unqqnhlgsl .gt_subtitle {
+#mowyqtooom .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1809,13 +1812,13 @@ waffle_svy %&gt;%
   border-top-width: 0;
 }
 
-#unqqnhlgsl .gt_bottom_border {
+#mowyqtooom .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_col_headings {
+#mowyqtooom .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1830,7 +1833,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_col_heading {
+#mowyqtooom .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1850,7 +1853,7 @@ waffle_svy %&gt;%
   overflow-x: hidden;
 }
 
-#unqqnhlgsl .gt_column_spanner_outer {
+#mowyqtooom .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1862,15 +1865,15 @@ waffle_svy %&gt;%
   padding-right: 4px;
 }
 
-#unqqnhlgsl .gt_column_spanner_outer:first-child {
+#mowyqtooom .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#unqqnhlgsl .gt_column_spanner_outer:last-child {
+#mowyqtooom .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#unqqnhlgsl .gt_column_spanner {
+#mowyqtooom .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1882,7 +1885,7 @@ waffle_svy %&gt;%
   width: 100%;
 }
 
-#unqqnhlgsl .gt_group_heading {
+#mowyqtooom .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1907,7 +1910,7 @@ waffle_svy %&gt;%
   vertical-align: middle;
 }
 
-#unqqnhlgsl .gt_empty_group_heading {
+#mowyqtooom .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1922,15 +1925,15 @@ waffle_svy %&gt;%
   vertical-align: middle;
 }
 
-#unqqnhlgsl .gt_from_md > :first-child {
+#mowyqtooom .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#unqqnhlgsl .gt_from_md > :last-child {
+#mowyqtooom .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#unqqnhlgsl .gt_row {
+#mowyqtooom .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1949,7 +1952,7 @@ waffle_svy %&gt;%
   overflow-x: hidden;
 }
 
-#unqqnhlgsl .gt_stub {
+#mowyqtooom .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1962,7 +1965,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#unqqnhlgsl .gt_stub_row_group {
+#mowyqtooom .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1976,11 +1979,11 @@ waffle_svy %&gt;%
   vertical-align: top;
 }
 
-#unqqnhlgsl .gt_row_group_first td {
+#mowyqtooom .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#unqqnhlgsl .gt_summary_row {
+#mowyqtooom .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1990,16 +1993,16 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#unqqnhlgsl .gt_first_summary_row {
+#mowyqtooom .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_first_summary_row.thick {
+#mowyqtooom .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#unqqnhlgsl .gt_last_summary_row {
+#mowyqtooom .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2009,7 +2012,7 @@ waffle_svy %&gt;%
   border-bottom-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_grand_summary_row {
+#mowyqtooom .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2019,7 +2022,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#unqqnhlgsl .gt_first_grand_summary_row {
+#mowyqtooom .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2029,11 +2032,11 @@ waffle_svy %&gt;%
   border-top-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_striped {
+#mowyqtooom .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#unqqnhlgsl .gt_table_body {
+#mowyqtooom .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2042,7 +2045,7 @@ waffle_svy %&gt;%
   border-bottom-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_footnotes {
+#mowyqtooom .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2056,7 +2059,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_footnote {
+#mowyqtooom .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2065,7 +2068,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#unqqnhlgsl .gt_sourcenotes {
+#mowyqtooom .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2079,7 +2082,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#unqqnhlgsl .gt_sourcenote {
+#mowyqtooom .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2087,36 +2090,36 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#unqqnhlgsl .gt_left {
+#mowyqtooom .gt_left {
   text-align: left;
 }
 
-#unqqnhlgsl .gt_center {
+#mowyqtooom .gt_center {
   text-align: center;
 }
 
-#unqqnhlgsl .gt_right {
+#mowyqtooom .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#unqqnhlgsl .gt_font_normal {
+#mowyqtooom .gt_font_normal {
   font-weight: normal;
 }
 
-#unqqnhlgsl .gt_font_bold {
+#mowyqtooom .gt_font_bold {
   font-weight: bold;
 }
 
-#unqqnhlgsl .gt_font_italic {
+#mowyqtooom .gt_font_italic {
   font-style: italic;
 }
 
-#unqqnhlgsl .gt_super {
+#mowyqtooom .gt_super {
   font-size: 65%;
 }
 
-#unqqnhlgsl .gt_two_val_uncert {
+#mowyqtooom .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -2125,31 +2128,31 @@ waffle_svy %&gt;%
   margin-left: 0.1em;
 }
 
-#unqqnhlgsl .gt_footnote_marks {
+#mowyqtooom .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#unqqnhlgsl .gt_asterisk {
+#mowyqtooom .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#unqqnhlgsl .gt_slash_mark {
+#mowyqtooom .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#unqqnhlgsl .gt_fraction_numerator {
+#mowyqtooom .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#unqqnhlgsl .gt_fraction_denominator {
+#mowyqtooom .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -2194,11 +2197,11 @@ waffle_svy %&gt;%
 <td class="gt_row gt_center">581 (0.9%)</td></tr>
     <tr><td class="gt_row gt_left">Age</td>
 <td class="gt_row gt_center"></td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 18-34</td>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 20-34</td>
 <td class="gt_row gt_center">688 (24%)</td></tr>
     <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 35-50</td>
 <td class="gt_row gt_center">1,473 (48%)</td></tr>
-    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 51-69</td>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 51-60</td>
 <td class="gt_row gt_center">1,235 (29%)</td></tr>
   </tbody>
   
@@ -2210,22 +2213,25 @@ waffle_svy %&gt;%
 </table>
 </div>
 <p>
-<p>The bivariate statistics were constructed using the survey provided
-variable (WEIGHT_MAINRESPONDENT) to correct for over/under sampling of
-specific target populations.</p>
+<p>
+<p>The bivariate statistics were constructed using the survey-provided
+variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling
+of specific target populations.</p>
 <pre class="r"><code># all -- just for reference
 df0 &lt;- waffle_svy %&gt;%
   group_by( money) %&gt;%
-  summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;% # create summary proportions
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  # create summary proportions
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;% 
+  # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          vals_low = MESS::round_percent(vals_low), 
          vals_upp = MESS::round_percent(vals_upp))
 
 # marital status
 df1 &lt;- waffle_svy %&gt;%
   group_by(marco, money) %&gt;%
-  summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;% # create summary proportions
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;% 
+  mutate(vals     = MESS::round_percent(vals),
          vals_low = MESS::round_percent(vals_low), 
          vals_upp = MESS::round_percent(vals_upp), 
          group    = &quot;parent&quot;,
@@ -2235,7 +2241,7 @@ df1 &lt;- waffle_svy %&gt;%
 df2 &lt;- waffle_svy %&gt;%
   group_by(marco,parent, money) %&gt;%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = &quot;parent&quot;) %&gt;%
   rename(subgroup = parent)
 
@@ -2243,7 +2249,7 @@ df2 &lt;- waffle_svy %&gt;%
 df3 &lt;- waffle_svy %&gt;%
   group_by(marco,couple, money) %&gt;%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = &quot;couple&quot;) %&gt;%
   rename(subgroup = couple)
 
@@ -2251,7 +2257,7 @@ df3 &lt;- waffle_svy %&gt;%
 df4 &lt;- waffle_svy %&gt;%
   group_by(marco,age, money) %&gt;%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = &quot;ci&quot;)) %&gt;%
-  mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+  mutate(vals     = MESS::round_percent(vals), 
          group    = &quot;age&quot;) %&gt;%
   rename(subgroup = age)
 
@@ -2262,6 +2268,9 @@ waffle_data &lt;- df1 %&gt;%
   full_join(df4) %&gt;%
     mutate(group = as_factor(group),
     subgroup = as_factor(subgroup))</code></pre>
+<p>Replication code for data access, variable construction, and data
+visualization creation is available in the <a href="https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R">github
+repository</a>.</p>
 </div>
 
 

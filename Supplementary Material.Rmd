@@ -6,10 +6,10 @@ knit: (function(inputFile, encoding) {
                         encoding=encoding,
                         output_dir=file.path(dirname(inputFile), out_dir))})
 output:
-  word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+  word_document: default
+  pdf_document: default
 bibliography: references.json
 ---
   
@@ -225,4 +225,4 @@ waffle_data <- df1 %>%
 
 ```
   
-Replication code for data access, variable construction, and data visualization creation is available at [github repository redacted for peer review].  
+Replication code for data access, variable construction, and data visualization creation is available in the [github repository](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
