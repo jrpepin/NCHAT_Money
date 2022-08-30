@@ -1,5 +1,10 @@
 ---
 title: "Supplementary Material"
+knit: (function(inputFile, encoding) {
+      out_dir <- "docs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_dir=file.path(dirname(inputFile), out_dir))})
 output:
   word_document: default
   pdf_document: default

@@ -2,6 +2,11 @@
 title: "A Visualization of U.S. Couples' Money Arrangements"
 author: "Joanna R. Pepin"
 date: "`r Sys.Date()`"
+knit: (function(inputFile, encoding) {
+      out_dir <- "docs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_dir=file.path(dirname(inputFile), out_dir))})
 output:
   html_document:
     df_print: paged
@@ -53,7 +58,7 @@ pacman::p_load(
        MESS,       # round prop & preserve sum to 100%
        gtsummary,  # pretty weighted tables
        ggplot2,    # graphing
-       colorspace) # color palettes   
+       colorspace) # color palettes  
 
 library("waffle")                 
 library("icpsrdata")
@@ -61,7 +66,7 @@ library("icpsrdata")
 ```
   
   
-```{r packages, echo = FALSE}
+```{r filepaths, echo = FALSE}
 # Set the project directory to the current working directory.
 # Change the filepath to where the data was downloaded.
 projDir <- here::here()             # File path to this project's directory
