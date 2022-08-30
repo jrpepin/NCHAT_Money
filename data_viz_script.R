@@ -228,4 +228,4 @@ p1<- waffle_data %>%
 p1 # view the plot
 
 # save the image as png file in the project directory
-ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, units="in", dpi=300)
+ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, bg = "white", units="in", dpi=300)

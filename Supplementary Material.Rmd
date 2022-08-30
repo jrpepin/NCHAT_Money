@@ -101,7 +101,7 @@ The direct parent identifiers are only available through a restricted Virtual Da
 Two variables were used to identify the couple type: D2 (Which of the following best describes your gender?) and HHR5 (How would [Field-HHP1] describe their gender?). Women who reported their partner was a man (and vice versa) were coded as different-gender couples. Men who reported their partner was a man and women who reported their partner was a woman were coded as same-gender couples. Respondents who chose another gender for themselves or their partners were not included in this data visualization.
   
 ## _Age group_
-The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20-60. Therefore, the categories were recoded to reflect the true top/bottom ages (partner's ages may be younger/older). The refusal rate for this item was 1.6% (n = 57).  
+The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20-60. Therefore, the categories were recoded to reflect the true top/bottom ages (partner's age may be younger/older). The refusal rate for this item was 1.6% (n = 57).  
   
 ```{r vars-2}
 

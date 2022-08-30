@@ -11,7 +11,7 @@ bibliography: references.json
 ---
 
 # Abstract
-Using newly available nationally representative U.S. data from the [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417), this visualization presents 2020-2021 estimates of couples' (n = 3,537) money arrangements by marital status, parental status, age group, and for different-gender and same-gender couples. It shows cohabiting couples continue to be much less likely than married couples to pool all their money, and the size of the gap does not appear to vary substantially by parental status or age group. Among married couples, 66% of different-gender couples put all their money together, compared with 45% of women partnered with women, and 50% of men partnered with men.     
+Using newly available nationally representative U.S. data from the [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417), this visualization presents 2020–2021 estimates of couples' (n = 3,537) money arrangements by marital status, parental status, age group, and for different-gender and same-gender couples. It shows cohabiting couples continue to be much less likely than married couples to pool all their money, and the size of the gap does not vary substantially by parental status or age group. Among married couples, 66% of different-gender couples put all their money together, compared with 45% of women partnered with women and 50% of men partnered with men. 
   
   
 ### Keywords  
@@ -20,11 +20,11 @@ money, couples, marriage, cohabitation, visualization
   
 --- 
   
-A survey experiment showed the most commonly selected money arrangement for a fictional couple was to combine some money together and keep some money separately (@pepin_beliefs_2019). Whether U.S. couples’ behaviors have changed in ways consistent with these public beliefs has remained an open empirical question because the most recent publicly available data on U.S. couples' money arrangements comes from the 2012 International Social Survey Programme Family and Changing Gender Roles module. This has hindered understanding of crucial knowledge about societal trends families' pursuit of autonomy over collectivism. Couples’ treatment of money also has important substantive implications regarding relationship quality and persistent gender inequality within families (@gladstone_pooling_2022). Until now, a comparison between different-gender and same-gender couples has been unobtainable using nationally representative survey data.  
+A recent survey experiment showed the most commonly selected money arrangement for a fictional couple was to combine some of their money and keep some money separate  (@pepin_beliefs_2019). Whether U.S. couples’ behaviors have changed in ways consistent with these public beliefs has remained an open empirical question because the most recent publicly available data on U.S. couples' money arrangements comes from the 2012 International Social Survey Programme Family and Changing Gender Roles module. This 10-year gap has hindered crucial knowledge about societal trends in families’ pursuit of autonomy over collectivism. Couples’ treatment of money also has important substantive implications regarding relationship quality and persistent gender inequality within families (@gladstone_pooling_2022). Also, a comparison between different-gender and same-gender couples’ money arrangements has been unobtainable using nationally representative survey data until now.  
   
-Figure 1 shows updated estimates of couples’ approaches to money using 2020-2021 data available from National Couples' Health and Time Study, a nationally representative sample of married and cohabiting couples living in the United States (n = 3,537). Couples' money arrangements are presented for key demographic groups, including marital status, parental status, age group (aged 20-60), and for different-gender and same-gender couples. The results are disaggregated by legal marital status, as marriage has consistently been found to be the determining characteristic influencing couples' integration of money (@eickmeyer_whats_2019). Replication code for data access and variable construction are available at [github repository redacted for peer review].  
+Figure 1 presents updated estimates of couples’ approaches to money using 2020–2021 data available from the National Couples' Health and Time Study (NCHAT), a nationally representative sample of married and cohabiting couples living in the United States (n = 3,537). Couples' money arrangements are presented for key demographic groups, including marital status, parental status, age group (aged 20–60), and for different-gender and same-gender couples. The results are disaggregated by legal marital status, as marriage has consistently been found to be the determining characteristic influencing couples' integration of money (@eickmeyer_whats_2019). Replication code for data access and variable construction is available at [github repository redacted for peer review].  
   
-Each panel in the figure contains a waffle chart consisting of 100 smaller squares colored according to the proportion of couples who report they (1) put all of their money together, (2) put some money together, or (3) keep all of their money separately. Differences by marital status are apparent, with 66% of married couples reporting they pool everything compared with 23% of cohabiting couples taking a complete pooling approach. The marriage-cohabitation gap remains visible across sub-groups and relatively consistent within sub-groups, with one exception. Two-thirds of different-gender married couples put all of their money together compared with 50% of men partnered with men and 45% of women partnered with women. 
+Each panel in the figure contains a waffle chart consisting of 100 smaller squares colored according to the proportion of couples who report they (1) put all of their money together, (2) put some money together, or (3) keep all of their money separate. Differences by marital status are apparent, with 66% of married couples reporting they pool everything compared with 23% of cohabiting couples taking a complete pooling approach. The marriage-cohabitation gap remains visible across sub-groups and relatively consistent within sub-groups, with one exception. Two-thirds of different-gender married couples put all of their money together compared with 50% of men partnered with men and 45% of women partnered with women. 
   
   
 ```{r setup, echo = FALSE}
@@ -279,20 +279,20 @@ p1<- waffle_data %>%
 p1
 ```
 __Figure 1.__  U.S. couples' money arrangements by demographic groups (n = 3,537)  
-_NOTE:_ The figure displays the percentage of U.S. couples (20-60 years old) who selected each money arrangement for all couples and by marital status, age category, couple-gender type, and parental status.
+_NOTE:_ The figure displays the percentage of U.S. couples (aged 20-60) who selected each money arrangement by marital status, parental status, couple-gender type, and age group.
 
 ```{r fig-1, echo=FALSE, eval = FALSE}
 # save the image as png file
-ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, units="in", dpi=300)
+ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, bg = "white", units="in", dpi=300)
 ```
   
   
 <p>    
   
   
-Changing partnership trends, such as couples more often cohabiting before marrying, attitude data (@pepin_beliefs_2019), behavioral estimates from outside the U.S. (@hu_divergent_2021), and from non-representative U.S. samples (@bank_of_america_better_2018), all suggest younger couples may be more likely than their older counterparts to keep their finances separate. Yet, the money arrangements look remarkably similar across age groups. About two-thirds of married couples pull their money, regardless of age, compared with less than one-quarter of cohabitors.  
+Changing partnership trends—such as couples more often cohabiting before marrying, attitude data (@pepin_beliefs_2019), and behavioral estimates from outside the U.S. (@hu_divergent_2021), and from non-representative U.S. samples (@bank_of_america_better_2018)—all suggest younger couples may be more likely than their older counterparts to keep their finances separate. Yet, this data visualization shows the money arrangements look remarkably similar across age groups. About two-thirds of married couples pool their money, regardless of age, compared with less than one-quarter of cohabitors.
   
-Overall, the figure suggests that U.S. couples’ money arrangements remain starkly differentiated by marital status and cohort differences are less apparent than expected based on empirical data from other contexts and composition changes among U.S. families that are associated with a reduction in pooled finances. These bivariate descriptive statistics open many possibilities of using NCHAT data to answer further questions related to U.S. couples’ treatment of money that have so far remained elusive.  
+Overall, the figure shows that U.S. couples’ money arrangements remain starkly differentiated by marital status and cohort differences are less apparent than expected based on empirical data from other contexts and composition changes among U.S. families that are associated with a reduction in pooled finances. These bivariate descriptive statistics open many possibilities for use of NCHAT data to answer further questions related to U.S. couples’ treatment of money that have so far remained elusive. 
   
   
 # References
