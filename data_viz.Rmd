@@ -6,6 +6,7 @@ knit: (function(inputFile, encoding) {
       out_dir <- "docs";
       rmarkdown::render(inputFile,
                         encoding=encoding,
+                        output_file='index.html',
                         output_dir=file.path(dirname(inputFile), out_dir))})
 output:
   html_document:
