@@ -51,7 +51,7 @@ dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
   
   
 # Data  
-This visualization uses population-based U.S. data from the 2020-2021 [National Couples' Health and Time Study (NCHAT)](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel, including an over sample of sexual and gender diverse families. When weighted, the survey provides nationally representative data on cohabiting and married individuals (ages 20-60 years old).  
+This visualization uses population-based U.S. data from the 2020–2021 [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel, including an over sample of sexual and gender diverse families. When weighted, the survey provides nationally representative data on cohabiting and married individuals (aged 20-60).  
   
 ```{r data-1, echo=FALSE, eval = FALSE}
 # The icpsr_download function will ask for the login information required by ICPSR: the user’s email and password.
@@ -89,19 +89,19 @@ fct_case_when <- function(...) {
   
   
 ## _Money arrangement_  
-Respondents were told: "Couples handle their money differently. Which of the following do you do?" The response choices include: (2) We keep all of our money separately, (2) put some money together, or (3) Put all of our money together.  .2% (n = 6) of respondents refused to answer the question item.  
+Respondents were told: "Couples handle their money differently. Which of the following do you do?" The response choices were: (1) We keep all of our money separately, (2) Put some money together, or (3) Put all of our money together.  Only 6 (.2%) respondents refused to answer the question item.  
 
 ##  _Marital status_
-This visualization uses legal marriage status to differentiate married and cohabiting couples. Respondents who answered affirmatively when asked "Have you and your current spouse/partner ever experienced any of the following with each other? Legal marriage" were considered legally married. 4 respondents refused to answer the question.   
+This visualization uses legal marriage status to differentiate married and cohabiting couples. Respondents who answered affirmatively when asked "Have you and your current spouse/partner ever experienced any of the following with each other? Legal marriage" were considered legally married. Four respondents refused to answer the question.   
   
 ## _Parental status_  
-The direct parent identifiers are only available through a restricted Virtual Data Enclave, requiring institutional IRB approval and an application. With reproducibility a priority, parents were instead identified using the skip logic of a publically available variable asking how stressed the respondent is dividing childcare with their partner. Respondents who were not shown the question (C18D_B) were determined to be not-parenting and those shown the question were coded as parenting.  
+The direct parent identifiers are only available through a restricted Virtual Data Enclave, requiring institutional IRB approval and an application. With reproducibility a priority, parents were instead identified using the skip logic of a publicly available variable on respondents’ stress over dividing childcare with their partner. Respondents who were not shown the question (C18D_B) were determined to be not-parenting and those shown the question were coded as parenting.  
   
 ## _Couple type_  
-Two variables were used to identify the couple type: D2 (Which of the following best describes your gender?) and and HHR5 (How would [Field-HHP1] describe their gender?). Men who reported their partner's gender was women (and vise versa) were coded as different-gender couples. Men who reported their partner's gender was a man were coded as same-gender. The same was true for women identified respondents. Respondents who chose another gender for themselves or their partners were removed from this data visualization.  
+Two variables were used to identify the couple type: D2 (Which of the following best describes your gender?) and HHR5 (How would [Field-HHP1] describe their gender?). Women who reported their partner was a man (and vice versa) were coded as different-gender couples. Men who reported their partner was a man and women who reported their partner was a woman were coded as same-gender couples. Respondents who chose another gender for themselves or their partners were not included in this data visualization.
   
 ## _Age group_
-The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three categories: (1) 18-34, (2) 35-50, or (3) 51-69. The refusal rate for this item was 1.6% (n = 57).  
+The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20-60. Therefore, the categories were recoded to reflect the true top/bottom ages (partner's ages may be younger/older). The refusal rate for this item was 1.6% (n = 57).  
   
 ```{r vars-2}
 
@@ -137,7 +137,7 @@ data <- data %>%
   
 # Sample  
 
-This data visualization is based on same- and different-gender U.S. couples aged 20-60 who have no missing information regarding their money arrangements, marital and parental status, and age group. The final sample size includes 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
+This data visualization is based on same- and different-gender U.S. couples aged 20–60 who had no missing information regarding their money arrangements, marital and parental status, and age group. The final sample included 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
   
 ```{r survey}
 
@@ -162,7 +162,7 @@ waffle_svy %>%
 <p>    
   
   
-The bivariate statistics were constructed using the survey provided variable (WEIGHT_MAINRESPONDENT) to correct for over/under sampling of specific target populations. 
+The bivariate statistics were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling of specific target populations. 
   
 ```{r waffle-1, results='hide'}
 
@@ -220,4 +220,4 @@ waffle_data <- df1 %>%
 
 ```
   
-Replication code for data access, variable construction, and creating the data visualization are available at [github repository redacted for peer review].  
+Replication code for data access, variable construction, and data visualization creation is available at [github repository redacted for peer review].  
