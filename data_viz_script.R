@@ -8,9 +8,10 @@
 ## WARNING: Remove the leading # to install packages below one time. 
 ## Change filepaths below one time
 
-  # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
+  # if (!require(remotes)) install.packages("remotes") 
+  # remotes::install_github("fsolt/icpsrdata")                      # download ICPSR data
   # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") # install waffle package not on CRAN
-  # install.packages("pacman")  # Install pacman package if not installed
+  # install.packages("pacman")                                      # Install pacman package if not installed
 
 # Installs and loads packages automatically
 library("pacman")                  # Load pacman package
@@ -45,7 +46,9 @@ dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
 ##         "icpsr_password" = "password123!")
 ## URL for manual download: https://www.icpsr.umich.edu/web/DSDR/studies/38417
 
-icpsrdata::icpsr_download( file_id = 38417, download_dir = file.path(dataDir))
+# THIS WILL FAIL IF OPTIONS AREN'T SPECIFIED AS INSTRUCTED ABOVE
+# ONLY NEEDS TO BE DOWNLOADED 1X
+# icpsrdata::icpsr_download( file_id = 38417, download_dir = file.path(dataDir))
 
 ## Load the data and create a new dataframe containing only the variables of interest.  
 load(file=file.path(dataDir, "ICPSR_38417/DS0001", '38417-0001-Data.rda'))
@@ -91,14 +94,14 @@ data <- data %>%
       D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
     # age
     age = fct_case_when(
-      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34", # change bottom code to match codebook
+      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34",      # change bottom code to match codebook
       AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
-      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) # change top code to match codebook
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) %>% # change top code to match codebook
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
+  drop_na() # drop respondents with any missing data
 
 ## Set as survey data
 waffle_svy <- data %>%
-  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
-  drop_na() %>% # drop respondents with any missing data
   as_survey_design(id = RESPONSEID,
                    weights = WEIGHT_MAINRESPONDENT)
 
@@ -110,9 +113,13 @@ waffle_svy %>%
                               marco    ~ "Marital Status",
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
-                              age      ~ "Age"))
+                              age      ~ "Age")) %>%
+  modify_header(update = stat_0 ~ "**N = {N_unweighted}**")
 
 # ANALYSIS -----------------------------------------------------------------------
+
+
+# CREATE FIGURE DATA -------------------------------------------------------------
 ## Create bivariate statistics
 
 # all -- just for reference

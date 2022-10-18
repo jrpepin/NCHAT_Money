@@ -142,7 +142,7 @@ data <- data %>%
   
 # Sample  
 
-This data visualization is based on same- and different-gender U.S. couples aged 20–60 who had no missing information regarding their money arrangements, marital and parental status, and age group. The final sample included 3,537 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
+This data visualization is based on same- and different-gender U.S. couples aged 20–60 who had no missing information regarding their money arrangements, marital and parental status, and age group. The final sample included 3,396 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
   
 ```{r survey}
 
@@ -159,7 +159,8 @@ waffle_svy %>%
                               marco    ~ "Marital Status",
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
-                              age      ~ "Age"))
+                              age      ~ "Age")) %>%
+  modify_header(update = stat_0 ~ "**N = {N_unweighted}**")
  
 ```
   

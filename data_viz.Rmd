@@ -17,7 +17,7 @@ bibliography: references.json
 ---
 
 # Abstract
-Using newly available nationally representative U.S. data from the [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417), this visualization presents 2020–2021 estimates of couples' (n = 3,537) money arrangements by marital status, parental status, age group, and for different-gender and same-gender couples. It shows cohabiting couples continue to be much less likely than married couples to pool all their money, and the size of the gap does not vary substantially by parental status or age group. Among married couples, 66% of different-gender couples put all their money together, compared with 45% of women partnered with women and 50% of men partnered with men. 
+Using newly available nationally representative U.S. data from the [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417), this visualization presents 2020–2021 estimates of couples' (n = 3,396) money arrangements by marital status, parental status, age group, and for different-gender and same-gender couples. It shows cohabiting couples continue to be much less likely than married couples to pool all their money, and the size of the gap does not vary substantially by parental status or age group. Among married couples, 66% of different-gender couples put all their money together, compared with 45% of women partnered with women and 50% of men partnered with men. 
   
   
 ### Keywords  
@@ -156,7 +156,8 @@ waffle_svy %>%
                               marco    ~ "Marital Status",
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
-                              age      ~ "Age"))
+                              age      ~ "Age")) %>%
+  modify_header(update = stat_0 ~ "**N = {N_unweighted}**")
  
 ```
 <p>  
@@ -284,7 +285,7 @@ p1<- waffle_data %>%
 
 p1
 ```
-__Figure 1.__  U.S. couples' money arrangements by demographic groups (n = 3,537)  
+__Figure 1.__  U.S. couples' money arrangements by demographic groups (n = 3,396)  
 _NOTE:_ The figure displays the percentage of U.S. couples (aged 20-60) who selected each money arrangement by marital status, parental status, couple-gender type, and age group.
 
 ```{r fig-1, echo=FALSE, eval = FALSE}
