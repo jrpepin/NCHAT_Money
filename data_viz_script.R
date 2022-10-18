@@ -9,6 +9,7 @@
 ## Change filepaths below one time
 
   # if (!require(remotes)) install.packages("remotes") 
+  # if (!require(devtools)) install.packages("devtools") 
   # remotes::install_github("fsolt/icpsrdata")                      # download ICPSR data
   # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") # install waffle package not on CRAN
   # install.packages("pacman")                                      # Install pacman package if not installed
@@ -19,14 +20,15 @@ library("pacman")                  # Load pacman package
 # Install packages not yet installed & load them
 pacman::p_load(
   here,       # relative file paths
-  devtools,   # loading github packages
   foreign,    # read data
   dplyr,      # variable processing
+  tidyr,      # reshaping data
   forcats,    # reverse factor variables
   srvyr,      # calc % with survey weights
   MESS,       # round prop & preserve sum to 100%
   gtsummary,  # pretty weighted tables
   ggplot2,    # graphing
+  ggtext,     # automatically wraps the text inside figure
   colorspace) # color palettes   
 
 library("waffle")                 
@@ -62,6 +64,8 @@ data <- da38417.0001 %>%
          D2, HHR5,  # couple type
          AGE_SD)
 
+glimpse(data)
+
 ### creates a function so level order remains the same as argument order
 fct_case_when <- function(...) {
   args <- as.list(match.call())
@@ -70,7 +74,7 @@ fct_case_when <- function(...) {
   factor(dplyr::case_when(...), levels=levels)
 }
 
-## Variables
+## Variables & Sample
 data <- data %>%
   mutate(
     # money treatment
@@ -100,12 +104,14 @@ data <- data %>%
   select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
   drop_na() # drop respondents with any missing data
 
+glimpse(data)
+
 ## Set as survey data
 waffle_svy <- data %>%
   as_survey_design(id = RESPONSEID,
                    weights = WEIGHT_MAINRESPONDENT)
 
-## Create a weighted table of sample
+## Create a table of sample
 waffle_svy %>%
   select(c(-RESPONSEID, -WEIGHT_MAINRESPONDENT)) %>%
   tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
@@ -114,10 +120,45 @@ waffle_svy %>%
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
                               age      ~ "Age")) %>%
-  modify_header(update = stat_0 ~ "**N = {N_unweighted}**")
+  modify_header(update = stat_0 ~ "**N = {N_unweighted}**") %>%
+  modify_caption("**Table 1. Summary statistics of the analytic sample**")
 
-# ANALYSIS -----------------------------------------------------------------------
+# CHI-SQUARE TESTS -----------------------------------------------------------------------
+# the statistics below match the output from survey::svychisq using statistic = "Chisq"
+# tbl1_ht <- waffle_svy %>%  
+#   filter(marco == "Married") %>%
+#   survey:: svychisq(~money+parent,., statistic="Chisq")
 
+## Within marital status
+waffle_svy %>%
+  tbl_strata(strata = marco,~.x %>%
+               tbl_svysummary(by = money, include = c(parent, couple, age),
+                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
+                              percent = 'row') %>%
+               add_p(test = everything() ~ "svy.adj.chisq.test")) %>%
+  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}** <br> (n ={n_unweighted})")) %>%
+  modify_caption("**Table 2. Bivariate statistics within marital groups**")
+
+## Between marital status
+htest_svy <- data %>% # reshape data
+  pivot_longer(
+    cols = c(parent, couple, age),
+    names_to = "subgroup",
+    values_to = "level") %>%
+  as_survey_design(id = RESPONSEID,
+                   weights = WEIGHT_MAINRESPONDENT)
+
+htest_svy %>%
+  tbl_strata(strata = level,~.x %>%
+               tbl_svysummary(by = money, include = c(marco),
+                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
+                              percent = 'row',
+                              label = list(marco    ~ " ")) %>%
+               add_p(test = everything() ~ "svy.adj.chisq.test"),
+             .combine_with = "tbl_stack",
+             .quiet = TRUE) %>%
+  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}**")) %>%
+  modify_caption("**Table 3. Bivariate statistics between marital groups**")
 
 # CREATE FIGURE DATA -------------------------------------------------------------
 ## Create bivariate statistics
@@ -225,14 +266,22 @@ p1<- waffle_data %>%
         legend.title    = element_blank(),
         plot.title.position   = "plot",
         plot.caption.position =  "plot",
+        plot.caption          = element_textbox_simple(),
         panel.spacing         = unit(0, "lines"),
         plot.subtitle         = element_text(face = "italic"),
         legend.position       = "top") +
-  labs(#       title = "Couples' treatment of money by demographic characteristic",
-    #       subtitle = "% of couples who _____________",
-    caption = "Source: National Couples' Health and Time Study (U.S.), 2020-2021")
+  labs(title = "U.S. couples' money arrangements by demographic groups (n = 3,396)",
+       subtitle = "Percentage of U.S. couples (aged 20-60) who selected _____________",
+       caption = "**Figure 1.** Data are from the National Couples' Health and Time Study (U.S.), 2020-2021. 
+       Sampling weights are used to adjust for the complex sampling process of the survey, 
+       such as the oversample of sexual and gender diverse families.
+       Chi-square tests confirm all demographic group comparisons between married and cohabiting couples are statistically significant (p < .05).
+       Among married couples, parents and different-gender couples are more likely than their counterparts to report they 'put all money together' (p < .05).
+       There are no statistically significant differences by demographic group among cohabiting couples. 
+       Additional details about data, variable construction, cell sizes and distribution, and chi-square tests 
+       between and within marital groups, is available in the Online Supplement.") 
 
 p1 # view the plot
 
 # save the image as png file in the project directory
-ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, bg = "white", units="in", dpi=300)
+ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=6.5, bg = "white", units="in", dpi=300)

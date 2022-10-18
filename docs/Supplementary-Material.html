@@ -1647,6 +1647,17 @@ data collection of 3,639 partnered individuals through the Gallup Panel,
 including an over sample of sexual and gender diverse families. When
 weighted, the survey provides nationally representative data on
 cohabiting and married individuals (aged 20-60).</p>
+<pre class="r"><code>glimpse(data)  </code></pre>
+<pre><code>## Rows: 3,639
+## Columns: 8
+## $ RESPONSEID            &lt;fct&gt; R_2ASXrgavxcuxSBj, R_1QxrSL2UmDMOqWq, R_1BPXkRWd…
+## $ WEIGHT_MAINRESPONDENT &lt;dbl&gt; 0.02769813, 0.84977680, 0.03038590, 2.08842505, …
+## $ Q40                   &lt;fct&gt; (1) We keep all of our money separate, (3) Put a…
+## $ MARITAL_1             &lt;fct&gt; (1) Legal marriage, (1) Legal marriage, (-99) Va…
+## $ C18D_B                &lt;fct&gt; NA, NA, NA, (3) 3, NA, NA, NA, (1) 1 - Not stres…
+## $ D2                    &lt;fct&gt; (2) Woman, (2) Woman, (2) Woman, (1) Man, (1) Ma…
+## $ HHR5                  &lt;fct&gt; (2) Woman, (1) Man, (1) Man, (2) Woman, (1) Man,…
+## $ AGE_SD                &lt;fct&gt; (2) 35-50, (2) 35-50, (1) 18-34, (3) 51-69, (3) …</code></pre>
 </div>
 <div id="measures" class="section level1">
 <h1>Measures</h1>
@@ -1720,9 +1731,22 @@ data &lt;- data %&gt;%
       D2 == &quot;(1) Man&quot;   &amp; HHR5 == &quot;(1) Man&quot;          ~ &quot;Man-man&quot;),
     # age
     age = fct_case_when(
-      AGE_SD == &quot;(1) 18-34&quot;                          ~ &quot;Age: 20-34&quot;, # change bottom code to match codebook
+      AGE_SD == &quot;(1) 18-34&quot;                          ~ &quot;Age: 20-34&quot;,      # change bottom code to match codebook
       AGE_SD == &quot;(2) 35-50&quot;                          ~ &quot;Age: 35-50&quot;,
-      AGE_SD == &quot;(3) 51-69&quot;                          ~ &quot;Age: 51-60&quot;)) # change top code to match codebook</code></pre>
+      AGE_SD == &quot;(3) 51-69&quot;                          ~ &quot;Age: 51-60&quot;)) %&gt;% # change top code to match codebook
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %&gt;%
+  drop_na() # drop respondents with any missing data
+
+glimpse(data)  </code></pre>
+<pre><code>## Rows: 3,396
+## Columns: 7
+## $ money                 &lt;fct&gt; Keep all money separate, Put all money together,…
+## $ marco                 &lt;fct&gt; Married, Married, Cohabiting, Married, Married, …
+## $ parent                &lt;fct&gt; Not parenting, Not parenting, Not parenting, Par…
+## $ couple                &lt;fct&gt; Woman-woman, Different-gender, Different-gender,…
+## $ age                   &lt;fct&gt; Age: 35-50, Age: 35-50, Age: 20-34, Age: 51-60, …
+## $ WEIGHT_MAINRESPONDENT &lt;dbl&gt; 0.02769813, 0.84977680, 0.03038590, 2.08842505, …
+## $ RESPONSEID            &lt;fct&gt; R_2ASXrgavxcuxSBj, R_1QxrSL2UmDMOqWq, R_1BPXkRWd…</code></pre>
 </div>
 </div>
 <div id="sample" class="section level1">
@@ -1733,8 +1757,6 @@ arrangements, marital and parental status, and age group. The final
 sample included 3,396 partnered individuals. More details about the
 sample recruitment can be found <a href="https://osf.io/preprints/socarxiv/p8a34/">online</a>.</p>
 <pre class="r"><code>waffle_svy &lt;- data %&gt;%
-  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %&gt;%
-  drop_na() %&gt;% # drop respondents with any missing data
   as_survey_design(id = RESPONSEID,
                    weights = WEIGHT_MAINRESPONDENT)
 
@@ -1746,13 +1768,14 @@ waffle_svy %&gt;%
                               parent   ~ &quot;Parental Status&quot;,
                               couple   ~ &quot;Couple Type&quot;,
                               age      ~ &quot;Age&quot;)) %&gt;%
-  modify_header(update = stat_0 ~ &quot;**N = {N_unweighted}**&quot;)</code></pre>
-<div id="nazqmctghd" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+  modify_header(update = stat_0 ~ &quot;**N = {N_unweighted}**&quot;) %&gt;%
+  modify_caption(&quot;**Table 1. Summary statistics of the analytic sample**&quot;)</code></pre>
+<div id="izgghxuaeo" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#nazqmctghd .gt_table {
+#izgghxuaeo .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1777,7 +1800,7 @@ waffle_svy %&gt;%
   border-left-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_heading {
+#izgghxuaeo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1789,7 +1812,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_title {
+#izgghxuaeo .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1801,7 +1824,7 @@ waffle_svy %&gt;%
   border-bottom-width: 0;
 }
 
-#nazqmctghd .gt_subtitle {
+#izgghxuaeo .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1813,13 +1836,13 @@ waffle_svy %&gt;%
   border-top-width: 0;
 }
 
-#nazqmctghd .gt_bottom_border {
+#izgghxuaeo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_col_headings {
+#izgghxuaeo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1834,7 +1857,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_col_heading {
+#izgghxuaeo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1854,7 +1877,7 @@ waffle_svy %&gt;%
   overflow-x: hidden;
 }
 
-#nazqmctghd .gt_column_spanner_outer {
+#izgghxuaeo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1866,15 +1889,15 @@ waffle_svy %&gt;%
   padding-right: 4px;
 }
 
-#nazqmctghd .gt_column_spanner_outer:first-child {
+#izgghxuaeo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#nazqmctghd .gt_column_spanner_outer:last-child {
+#izgghxuaeo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#nazqmctghd .gt_column_spanner {
+#izgghxuaeo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1886,7 +1909,7 @@ waffle_svy %&gt;%
   width: 100%;
 }
 
-#nazqmctghd .gt_group_heading {
+#izgghxuaeo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1911,7 +1934,7 @@ waffle_svy %&gt;%
   vertical-align: middle;
 }
 
-#nazqmctghd .gt_empty_group_heading {
+#izgghxuaeo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1926,15 +1949,15 @@ waffle_svy %&gt;%
   vertical-align: middle;
 }
 
-#nazqmctghd .gt_from_md > :first-child {
+#izgghxuaeo .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#nazqmctghd .gt_from_md > :last-child {
+#izgghxuaeo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#nazqmctghd .gt_row {
+#izgghxuaeo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1953,7 +1976,7 @@ waffle_svy %&gt;%
   overflow-x: hidden;
 }
 
-#nazqmctghd .gt_stub {
+#izgghxuaeo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1966,7 +1989,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#nazqmctghd .gt_stub_row_group {
+#izgghxuaeo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1980,11 +2003,11 @@ waffle_svy %&gt;%
   vertical-align: top;
 }
 
-#nazqmctghd .gt_row_group_first td {
+#izgghxuaeo .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#nazqmctghd .gt_summary_row {
+#izgghxuaeo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1994,16 +2017,16 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#nazqmctghd .gt_first_summary_row {
+#izgghxuaeo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_first_summary_row.thick {
+#izgghxuaeo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#nazqmctghd .gt_last_summary_row {
+#izgghxuaeo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2013,7 +2036,7 @@ waffle_svy %&gt;%
   border-bottom-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_grand_summary_row {
+#izgghxuaeo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2023,7 +2046,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#nazqmctghd .gt_first_grand_summary_row {
+#izgghxuaeo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2033,11 +2056,11 @@ waffle_svy %&gt;%
   border-top-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_striped {
+#izgghxuaeo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#nazqmctghd .gt_table_body {
+#izgghxuaeo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2046,7 +2069,7 @@ waffle_svy %&gt;%
   border-bottom-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_footnotes {
+#izgghxuaeo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2060,7 +2083,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_footnote {
+#izgghxuaeo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2069,7 +2092,7 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#nazqmctghd .gt_sourcenotes {
+#izgghxuaeo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2083,7 +2106,7 @@ waffle_svy %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#nazqmctghd .gt_sourcenote {
+#izgghxuaeo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2091,36 +2114,36 @@ waffle_svy %&gt;%
   padding-right: 5px;
 }
 
-#nazqmctghd .gt_left {
+#izgghxuaeo .gt_left {
   text-align: left;
 }
 
-#nazqmctghd .gt_center {
+#izgghxuaeo .gt_center {
   text-align: center;
 }
 
-#nazqmctghd .gt_right {
+#izgghxuaeo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#nazqmctghd .gt_font_normal {
+#izgghxuaeo .gt_font_normal {
   font-weight: normal;
 }
 
-#nazqmctghd .gt_font_bold {
+#izgghxuaeo .gt_font_bold {
   font-weight: bold;
 }
 
-#nazqmctghd .gt_font_italic {
+#izgghxuaeo .gt_font_italic {
   font-style: italic;
 }
 
-#nazqmctghd .gt_super {
+#izgghxuaeo .gt_super {
   font-size: 65%;
 }
 
-#nazqmctghd .gt_two_val_uncert {
+#izgghxuaeo .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -2129,37 +2152,38 @@ waffle_svy %&gt;%
   margin-left: 0.1em;
 }
 
-#nazqmctghd .gt_footnote_marks {
+#izgghxuaeo .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#nazqmctghd .gt_asterisk {
+#izgghxuaeo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#nazqmctghd .gt_slash_mark {
+#izgghxuaeo .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#nazqmctghd .gt_fraction_numerator {
+#izgghxuaeo .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#nazqmctghd .gt_fraction_denominator {
+#izgghxuaeo .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
 }
 </style>
 <table class="gt_table">
+  <caption><strong>Table 1. Summary statistics of the analytic sample</strong></caption>
   
   <thead class="gt_col_headings">
     <tr>
@@ -2215,9 +2239,1180 @@ waffle_svy %&gt;%
 </div>
 <p>
 <p>
-<p>The bivariate statistics were constructed using the survey-provided
-variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling
-of specific target populations.</p>
+</div>
+<div id="chi-square-tests" class="section level1">
+<h1>CHI-SQUARE TESTS ———————————————————————–</h1>
+<p>A series of chi-square tests were conducted to test for statistical
+differences within and between married and cohabiting respondents.<br />
+The tables show unweighted frequencies to provide information about the
+cell sizes. The chi-square tests are weighted, accounting for the
+oversampling in the recruitment of respondents for the survey.</p>
+<pre class="r"><code>## Within marital status
+waffle_svy %&gt;%
+  tbl_strata(strata = marco,~.x %&gt;%
+               tbl_svysummary(by = money, include = c(parent, couple, age),
+                              statistic = all_categorical() ~ &quot;{n_unweighted} ({p_unweighted}%)&quot;,
+                              percent = &#39;row&#39;) %&gt;%
+               add_p(test = everything() ~ &quot;svy.adj.chisq.test&quot;)) %&gt;%
+  modify_header(list(label~ &quot;**Variable**&quot;, all_stat_cols()~ &quot;**{level}** &lt;br&gt; (n ={n_unweighted})&quot;)) %&gt;%
+  modify_caption(&quot;**Table 2. Bivariate statistics within marital groups**&quot;)</code></pre>
+<div id="fstnnbajht" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#fstnnbajht .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#fstnnbajht .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#fstnnbajht .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#fstnnbajht .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#fstnnbajht .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#fstnnbajht .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#fstnnbajht .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#fstnnbajht .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fstnnbajht .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fstnnbajht .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#fstnnbajht .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#fstnnbajht .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#fstnnbajht .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fstnnbajht .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#fstnnbajht .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#fstnnbajht .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fstnnbajht .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#fstnnbajht .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fstnnbajht .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#fstnnbajht .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fstnnbajht .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fstnnbajht .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fstnnbajht .gt_left {
+  text-align: left;
+}
+
+#fstnnbajht .gt_center {
+  text-align: center;
+}
+
+#fstnnbajht .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#fstnnbajht .gt_font_normal {
+  font-weight: normal;
+}
+
+#fstnnbajht .gt_font_bold {
+  font-weight: bold;
+}
+
+#fstnnbajht .gt_font_italic {
+  font-style: italic;
+}
+
+#fstnnbajht .gt_super {
+  font-size: 65%;
+}
+
+#fstnnbajht .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em;
+}
+
+#fstnnbajht .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#fstnnbajht .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#fstnnbajht .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em;
+}
+
+#fstnnbajht .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em;
+}
+
+#fstnnbajht .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em;
+}
+</style>
+<table class="gt_table">
+  <caption><strong>Table 2. Bivariate statistics within marital groups</strong></caption>
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1"><strong>Variable</strong></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4">
+        <span class="gt_column_spanner"><strong>Married</strong></span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4">
+        <span class="gt_column_spanner"><strong>Cohabiting</strong></span>
+      </th>
+    </tr>
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put all money together</strong> <br> (n =1480)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put some money together</strong> <br> (n =700)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Keep all money separate</strong> <br> (n =354)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>p-value</strong><sup class="gt_footnote_marks">2</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put all money together</strong> <br> (n =134)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put some money together</strong> <br> (n =250)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Keep all money separate</strong> <br> (n =478)<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>p-value</strong><sup class="gt_footnote_marks">2</sup></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">parent</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.020</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.3</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Parenting</td>
+<td class="gt_row gt_center">661 (66%)</td>
+<td class="gt_row gt_center">230 (23%)</td>
+<td class="gt_row gt_center">108 (11%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">36 (24%)</td>
+<td class="gt_row gt_center">46 (31%)</td>
+<td class="gt_row gt_center">68 (45%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Not parenting</td>
+<td class="gt_row gt_center">819 (53%)</td>
+<td class="gt_row gt_center">470 (31%)</td>
+<td class="gt_row gt_center">246 (16%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">98 (14%)</td>
+<td class="gt_row gt_center">204 (29%)</td>
+<td class="gt_row gt_center">410 (58%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left">couple</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.040</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.7</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Different-gender</td>
+<td class="gt_row gt_center">1,224 (63%)</td>
+<td class="gt_row gt_center">458 (24%)</td>
+<td class="gt_row gt_center">254 (13%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">88 (17%)</td>
+<td class="gt_row gt_center">140 (28%)</td>
+<td class="gt_row gt_center">280 (55%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Woman-woman</td>
+<td class="gt_row gt_center">126 (47%)</td>
+<td class="gt_row gt_center">111 (41%)</td>
+<td class="gt_row gt_center">31 (12%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">15 (15%)</td>
+<td class="gt_row gt_center">31 (30%)</td>
+<td class="gt_row gt_center">57 (55%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Man-man</td>
+<td class="gt_row gt_center">130 (39%)</td>
+<td class="gt_row gt_center">131 (40%)</td>
+<td class="gt_row gt_center">69 (21%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">31 (12%)</td>
+<td class="gt_row gt_center">79 (31%)</td>
+<td class="gt_row gt_center">141 (56%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left">age</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.8</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&gt;0.9</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 20-34</td>
+<td class="gt_row gt_center">209 (58%)</td>
+<td class="gt_row gt_center">104 (29%)</td>
+<td class="gt_row gt_center">48 (13%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">45 (14%)</td>
+<td class="gt_row gt_center">89 (27%)</td>
+<td class="gt_row gt_center">193 (59%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 35-50</td>
+<td class="gt_row gt_center">678 (58%)</td>
+<td class="gt_row gt_center">323 (28%)</td>
+<td class="gt_row gt_center">166 (14%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">47 (15%)</td>
+<td class="gt_row gt_center">93 (30%)</td>
+<td class="gt_row gt_center">166 (54%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Age: 51-60</td>
+<td class="gt_row gt_center">593 (59%)</td>
+<td class="gt_row gt_center">273 (27%)</td>
+<td class="gt_row gt_center">140 (14%)</td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">42 (18%)</td>
+<td class="gt_row gt_center">68 (30%)</td>
+<td class="gt_row gt_center">119 (52%)</td>
+<td class="gt_row gt_center"></td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="9"><sup class="gt_footnote_marks">1</sup> n (unweighted) (% (unweighted))</td>
+    </tr>
+    <tr>
+      <td class="gt_footnote" colspan="9"><sup class="gt_footnote_marks">2</sup> chi-squared test adjusted by a design effect estimate</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<pre class="r"><code>## Between marital status
+htest_svy &lt;- data %&gt;% # reshape data
+  pivot_longer(
+    cols = c(parent, couple, age),
+    names_to = &quot;subgroup&quot;,
+    values_to = &quot;level&quot;) %&gt;%
+  as_survey_design(id = RESPONSEID,
+                   weights = WEIGHT_MAINRESPONDENT)
+
+htest_svy %&gt;%
+  tbl_strata(strata = level,~.x %&gt;%
+               tbl_svysummary(by = money, include = c(marco),
+                              statistic = all_categorical() ~ &quot;{n_unweighted} ({p_unweighted}%)&quot;,
+                              percent = &#39;row&#39;,
+                              label = list(marco    ~ &quot; &quot;)) %&gt;%
+               add_p(test = everything() ~ &quot;svy.adj.chisq.test&quot;),
+             .combine_with = &quot;tbl_stack&quot;,
+             .quiet = TRUE) %&gt;%
+  modify_header(list(label~ &quot;**Variable**&quot;, all_stat_cols()~ &quot;**{level}**&quot;)) %&gt;%
+  modify_caption(&quot;**Table 3. Bivariate statistics between marital groups**&quot;)</code></pre>
+<div id="ihkngscdag" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#ihkngscdag .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ihkngscdag .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ihkngscdag .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ihkngscdag .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ihkngscdag .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ihkngscdag .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ihkngscdag .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ihkngscdag .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ihkngscdag .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ihkngscdag .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ihkngscdag .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ihkngscdag .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ihkngscdag .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihkngscdag .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ihkngscdag .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ihkngscdag .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihkngscdag .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ihkngscdag .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihkngscdag .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ihkngscdag .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihkngscdag .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ihkngscdag .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ihkngscdag .gt_left {
+  text-align: left;
+}
+
+#ihkngscdag .gt_center {
+  text-align: center;
+}
+
+#ihkngscdag .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ihkngscdag .gt_font_normal {
+  font-weight: normal;
+}
+
+#ihkngscdag .gt_font_bold {
+  font-weight: bold;
+}
+
+#ihkngscdag .gt_font_italic {
+  font-style: italic;
+}
+
+#ihkngscdag .gt_super {
+  font-size: 65%;
+}
+
+#ihkngscdag .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em;
+}
+
+#ihkngscdag .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#ihkngscdag .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ihkngscdag .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em;
+}
+
+#ihkngscdag .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em;
+}
+
+#ihkngscdag .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em;
+}
+</style>
+<table class="gt_table">
+  <caption><strong>Table 3. Bivariate statistics between marital groups</strong></caption>
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"><strong>Variable</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put all money together</strong><sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Put some money together</strong><sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>Keep all money separate</strong><sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"><strong>p-value</strong><sup class="gt_footnote_marks">2</sup></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Parenting</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">661 (66%)</td>
+<td class="gt_row gt_center">230 (23%)</td>
+<td class="gt_row gt_center">108 (11%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">36 (24%)</td>
+<td class="gt_row gt_center">46 (31%)</td>
+<td class="gt_row gt_center">68 (45%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Not parenting</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">819 (53%)</td>
+<td class="gt_row gt_center">470 (31%)</td>
+<td class="gt_row gt_center">246 (16%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">98 (14%)</td>
+<td class="gt_row gt_center">204 (29%)</td>
+<td class="gt_row gt_center">410 (58%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Different-gender</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">1,224 (63%)</td>
+<td class="gt_row gt_center">458 (24%)</td>
+<td class="gt_row gt_center">254 (13%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">88 (17%)</td>
+<td class="gt_row gt_center">140 (28%)</td>
+<td class="gt_row gt_center">280 (55%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Woman-woman</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">0.022</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">126 (47%)</td>
+<td class="gt_row gt_center">111 (41%)</td>
+<td class="gt_row gt_center">31 (12%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">15 (15%)</td>
+<td class="gt_row gt_center">31 (30%)</td>
+<td class="gt_row gt_center">57 (55%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Man-man</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">130 (39%)</td>
+<td class="gt_row gt_center">131 (40%)</td>
+<td class="gt_row gt_center">69 (21%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">31 (12%)</td>
+<td class="gt_row gt_center">79 (31%)</td>
+<td class="gt_row gt_center">141 (56%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Age: 20-34</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">209 (58%)</td>
+<td class="gt_row gt_center">104 (29%)</td>
+<td class="gt_row gt_center">48 (13%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">45 (14%)</td>
+<td class="gt_row gt_center">89 (27%)</td>
+<td class="gt_row gt_center">193 (59%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Age: 35-50</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">678 (58%)</td>
+<td class="gt_row gt_center">323 (28%)</td>
+<td class="gt_row gt_center">166 (14%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">47 (15%)</td>
+<td class="gt_row gt_center">93 (30%)</td>
+<td class="gt_row gt_center">166 (54%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="5" class="gt_group_heading">Age: 51-60</td>
+    </tr>
+    <tr class="gt_row_group_first"><td class="gt_row gt_left"> </td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center"></td>
+<td class="gt_row gt_center">&lt;0.001</td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Married</td>
+<td class="gt_row gt_center">593 (59%)</td>
+<td class="gt_row gt_center">273 (27%)</td>
+<td class="gt_row gt_center">140 (14%)</td>
+<td class="gt_row gt_center"></td></tr>
+    <tr><td class="gt_row gt_left" style="text-align: left; text-indent: 10px;">Cohabiting</td>
+<td class="gt_row gt_center">42 (18%)</td>
+<td class="gt_row gt_center">68 (30%)</td>
+<td class="gt_row gt_center">119 (52%)</td>
+<td class="gt_row gt_center"></td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><sup class="gt_footnote_marks">1</sup> n (unweighted) (% (unweighted))</td>
+    </tr>
+    <tr>
+      <td class="gt_footnote" colspan="5"><sup class="gt_footnote_marks">2</sup> chi-squared test adjusted by a design effect estimate</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p>
+<p>
+</div>
+<div id="figure-data" class="section level1">
+<h1>Figure Data</h1>
+<p>The bivariate statistics used in the figure were constructed using
+the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for
+over- or under-sampling of specific target populations.</p>
 <pre class="r"><code># all -- just for reference
 df0 &lt;- waffle_svy %&gt;%
   group_by( money) %&gt;%

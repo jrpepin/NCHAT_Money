@@ -20,9 +20,11 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ## WARNING: Remove the leading # to install packages below first time. 
 ## Change filepaths below first time
 
-  # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
-  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git")                               # install waffle package not on CRAN
-  # install.packages("pacman")                                                                    # Install pacman package if not installed
+  # if (!require(remotes)) install.packages("remotes") 
+  # if (!require(devtools)) install.packages("devtools") 
+  # remotes::install_github("fsolt/icpsrdata")                      # download ICPSR data
+  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") # install waffle package not on CRAN
+  # install.packages("pacman")                                      # Install pacman package if not installed
 
 # Installs and loads packages automatically
 library("pacman")                  # Load pacman package
@@ -30,14 +32,15 @@ library("pacman")                  # Load pacman package
 # Install packages not yet installed & load them
 pacman::p_load(
        here,       # relative file paths
-       devtools,   # loading github packages
        foreign,    # read data
        dplyr,      # variable processing
+       tidyr,      # reshaping data
        forcats,    # reverse factor variables
        srvyr,      # calc % with survey weights
        MESS,       # round prop & preserve sum to 100%
        gtsummary,  # pretty weighted tables
        ggplot2,    # graphing
+       ggtext,     # automatically wraps the text inside figure
        colorspace) # color palettes   
 
 library("waffle")                 
@@ -80,8 +83,15 @@ data <- da38417.0001 %>%
          AGE_SD)
 ```
   
+```{r data-3}
+  
+glimpse(data)  
+  
+```
+  
   
 # Measures  
+  
 ```{r vars-1, echo=FALSE}
 ### creates a function so level order remains the same as argument order
 fct_case_when <- function(...) {
@@ -134,9 +144,14 @@ data <- data %>%
       D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
     # age
     age = fct_case_when(
-      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34", # change bottom code to match codebook
+      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34",      # change bottom code to match codebook
       AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
-      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) # change top code to match codebook
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) %>% # change top code to match codebook
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
+  drop_na() # drop respondents with any missing data
+
+glimpse(data)  
+  
 ```
   
   
@@ -147,8 +162,6 @@ This data visualization is based on same- and different-gender U.S. couples aged
 ```{r survey}
 
 waffle_svy <- data %>%
-  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
-  drop_na() %>% # drop respondents with any missing data
   as_survey_design(id = RESPONSEID,
                    weights = WEIGHT_MAINRESPONDENT)
 
@@ -160,7 +173,8 @@ waffle_svy %>%
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
                               age      ~ "Age")) %>%
-  modify_header(update = stat_0 ~ "**N = {N_unweighted}**")
+  modify_header(update = stat_0 ~ "**N = {N_unweighted}**") %>%
+  modify_caption("**Table 1. Summary statistics of the analytic sample**")
  
 ```
   
@@ -168,7 +182,56 @@ waffle_svy %>%
 <p>    
   
   
-The bivariate statistics were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling of specific target populations. 
+# CHI-SQUARE TESTS -----------------------------------------------------------------------
+A series of chi-square tests were conducted to test for statistical differences within and between married and cohabiting respondents.  
+The tables show unweighted frequencies to provide information about the cell sizes. The chi-square tests are weighted, accounting for the oversampling in the recruitment of respondents for the survey.  
+  
+  
+```{r chisquare}
+  
+## Within marital status
+waffle_svy %>%
+  tbl_strata(strata = marco,~.x %>%
+               tbl_svysummary(by = money, include = c(parent, couple, age),
+                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
+                              percent = 'row') %>%
+               add_p(test = everything() ~ "svy.adj.chisq.test")) %>%
+  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}** <br> (n ={n_unweighted})")) %>%
+  modify_caption("**Table 2. Bivariate statistics within marital groups**")
+  
+  
+  
+## Between marital status
+htest_svy <- data %>% # reshape data
+  pivot_longer(
+    cols = c(parent, couple, age),
+    names_to = "subgroup",
+    values_to = "level") %>%
+  as_survey_design(id = RESPONSEID,
+                   weights = WEIGHT_MAINRESPONDENT)
+
+htest_svy %>%
+  tbl_strata(strata = level,~.x %>%
+               tbl_svysummary(by = money, include = c(marco),
+                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
+                              percent = 'row',
+                              label = list(marco    ~ " ")) %>%
+               add_p(test = everything() ~ "svy.adj.chisq.test"),
+             .combine_with = "tbl_stack",
+             .quiet = TRUE) %>%
+  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}**")) %>%
+  modify_caption("**Table 3. Bivariate statistics between marital groups**")
+  
+  
+```
+  
+<p>  
+<p>    
+  
+  
+# Figure Data
+  
+The bivariate statistics used in the figure were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling of specific target populations. 
   
 ```{r waffle-1, results='hide'}
 
@@ -226,4 +289,4 @@ waffle_data <- df1 %>%
 
 ```
   
-Replication code for data access, variable construction, and data visualization creation is available in the [github repository](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
+Full replication code for data access, variable construction, and data visualization creation is available in the [github repository](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  

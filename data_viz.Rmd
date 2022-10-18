@@ -26,7 +26,7 @@ money, couples, marriage, cohabitation, visualization
   
 --- 
   
-A recent survey experiment showed the most commonly selected money arrangement for a fictional couple was to combine some of their money and keep some money separate  (@pepin_beliefs_2019). Whether U.S. couples’ behaviors have changed in ways consistent with these public beliefs has remained an open empirical question because the most recent publicly available data on U.S. couples' money arrangements comes from the 2012 International Social Survey Programme Family and Changing Gender Roles module. This 10-year gap has hindered crucial knowledge about societal trends in families’ pursuit of autonomy over collectivism. Couples’ treatment of money also has important substantive implications regarding relationship quality and persistent gender inequality within families. Also, a comparison between different-gender and same-gender couples’ money arrangements has been unobtainable using nationally representative survey data until now.  
+A recent survey experiment showed the most commonly selected money arrangement for a fictional couple was to combine some of their money and keep some money separate  (@pepin_beliefs_2019). Whether U.S. couples’ behaviors have changed in ways consistent with these public beliefs has remained an open empirical question because the most recent publicly available data on U.S. couples' money arrangements comes from the 2012 International Social Survey Programme Family and Changing Gender Roles module. This 10-year gap has hindered crucial knowledge about societal trends in families’ pursuit of autonomy over collectivism. Couples’ treatment of money also has important substantive implications regarding relationship quality and persistent gender inequality within families. Moreover, a comparison between different-gender and same-gender couples’ money arrangements has been unobtainable using nationally representative survey data until now.  
   
 Figure 1 presents updated estimates of couples’ approaches to money using 2020–2021 data available from the National Couples' Health and Time Study (NCHAT), a nationally representative sample of married and cohabiting couples living in the United States (@kamp_dush_national_2022). Couples' money arrangements are presented for key demographic groups, including marital status, parental status, age group (aged 20–60), and for different-gender and same-gender couples. The results are disaggregated by legal marital status, as marriage has consistently been found to be the determining characteristic influencing couples' integration of money (@eickmeyer_whats_2019). Replication code for data access and variable construction is available at [https://jrpepin.github.io/NCHAT_Money/Supplementary-Material.html](https://jrpepin.github.io/NCHAT_Money/Supplementary-Material.html).  
   
@@ -40,10 +40,12 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ## WARNING: Remove the leading # to install packages below first time. 
 ## Change filepaths below first time
 
-  # if (!require(remotes)) install.packages("remotes") remotes::install_github("fsolt/icpsrdata") # download ICPSR data
-  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") #install waffle package not on CRAN
-  # install.packages("pacman")       # Install pacman package if not installed
-  # remotes::install_github("paleolimbot/rbbt") # for Zotero citations in RStudio
+  # if (!require(remotes)) install.packages("remotes") 
+  # if (!require(devtools)) install.packages("devtools") 
+  # remotes::install_github("fsolt/icpsrdata")                      # download ICPSR data
+  # devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git") # install waffle package not on CRAN
+  # install.packages("pacman")                                      # Install pacman package if not installed
+  # remotes::install_github("paleolimbot/rbbt")                     # for Zotero citations in RStudio
 
 # Installs and loads packages automatically
 library("pacman")                  # Load pacman package
@@ -51,14 +53,15 @@ library("pacman")                  # Load pacman package
 # Install packages not yet installed & load them
 pacman::p_load(
        here,       # relative file paths
-       devtools,   # loading github packages
        foreign,    # read data
        dplyr,      # variable processing
+       tidyr,      # reshaping data
        forcats,    # reverse factor variables
        srvyr,      # calc % with survey weights
        MESS,       # round prop & preserve sum to 100%
        gtsummary,  # pretty weighted tables
        ggplot2,    # graphing
+       ggtext,     # automatically wraps the text inside figure
        colorspace) # color palettes  
 
 library("waffle")                 
@@ -134,9 +137,11 @@ data <- data %>%
       D2 == "(1) Man"   & HHR5 == "(1) Man"          ~ "Man-man"),
     # age
     age = fct_case_when(
-      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34", # change bottom code to match codebook
+      AGE_SD == "(1) 18-34"                          ~ "Age: 20-34",      # change bottom code to match codebook
       AGE_SD == "(2) 35-50"                          ~ "Age: 35-50",
-      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) # change top code to match codebook
+      AGE_SD == "(3) 51-69"                          ~ "Age: 51-60")) %>% # change top code to match codebook
+  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
+  drop_na() # drop respondents with any missing data
 
 ```
   
@@ -144,8 +149,6 @@ data <- data %>%
 ```{r survey, echo=FALSE, results='hide'}
 
 waffle_svy <- data %>%
-  select(money, marco, parent, couple, age, WEIGHT_MAINRESPONDENT, RESPONSEID) %>%
-  drop_na() %>% # drop respondents with any missing data
   as_survey_design(id = RESPONSEID,
                    weights = WEIGHT_MAINRESPONDENT)
 
@@ -285,8 +288,7 @@ p1<- waffle_data %>%
 
 p1
 ```
-__Figure 1.__  U.S. couples' money arrangements by demographic groups (n = 3,396)  
-_NOTE:_ The figure displays the percentage of U.S. couples (aged 20-60) who selected each money arrangement by marital status, parental status, couple-gender type, and age group.
+
 
 ```{r fig-1, echo=FALSE, eval = FALSE}
 # save the image as png file
