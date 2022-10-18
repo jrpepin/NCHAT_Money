@@ -270,7 +270,7 @@ p1<- waffle_data %>%
   facet_wrap(vars(c), ncol = 6) +
   scale_fill_manual(values = sequential_hcl(3, palette = "OrYel")) +
   coord_fixed(ratio = 1) +
-#  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
+  #  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
   theme_minimal() +
   theme(panel.grid      = element_blank(),
         axis.title      = element_blank(),
@@ -279,20 +279,28 @@ p1<- waffle_data %>%
         legend.title    = element_blank(),
         plot.title.position   = "plot",
         plot.caption.position =  "plot",
+        plot.caption          = element_textbox_simple(),
         panel.spacing         = unit(0, "lines"),
         plot.subtitle         = element_text(face = "italic"),
         legend.position       = "top") +
-  labs(#       title = "Couples' treatment of money by demographic characteristic",
-       #       subtitle = "% of couples who _____________",
-       caption = "Source: National Couples' Health and Time Study (U.S.), 2020-2021")
-
+  labs(title = "U.S. couples' money arrangements by demographic groups (n = 3,396)",
+       subtitle = "Percentage of U.S. couples (aged 20-60) who selected _____________",
+       caption = "**Figure 1.** Data are from the National Couples' Health and Time Study (U.S.), 2020-2021. 
+       Sampling weights are used to adjust for the complex sampling process of the survey, 
+       such as the oversample of sexual and gender diverse families.
+       Chi-square tests confirm all demographic group comparisons between married and cohabiting couples are statistically significant (p < .05).
+       Among married couples, parents and different-gender couples are more likely than their counterparts to report 
+       they 'put all money together' (p < .05).
+       There are no statistically significant differences by demographic group among cohabiting couples. 
+       Additional details about data, variable construction, cell sizes and distribution, and chi-square tests 
+       between and within marital groups, is available in the Online Supplement.") 
 p1
 ```
 
 
 ```{r fig-1, echo=FALSE, eval = FALSE}
 # save the image as png file
-ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=5.5, bg = "white", units="in", dpi=300)
+ggsave(filename = file.path(projDir, "waffle.png"), p1, width=6.5, height=6.5, bg = "white", units="in", dpi=300)
 ```
   
   
