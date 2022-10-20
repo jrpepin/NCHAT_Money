@@ -114,18 +114,19 @@ waffle_svy <- data %>%
 ## Create a table of sample
 waffle_svy %>%
   select(c(-RESPONSEID, -WEIGHT_MAINRESPONDENT)) %>%
-  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
+  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
                  label = list(money    ~ "Money Treatment",
                               marco    ~ "Marital Status",
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
                               age      ~ "Age")) %>%
   modify_header(update = stat_0 ~ "**N = {N_unweighted}**") %>%
-  modify_caption("**Table 1. Summary statistics of the analytic sample**")
+  modify_caption("**Table 1. Summary statistics of the analytic sample (unweighted)**") %>%
+  modify_header(label = "**Variable**")
 
 # CHI-SQUARE TESTS -----------------------------------------------------------------------
 # the statistics below match the output from survey::svychisq using statistic = "Chisq"
-# tbl1_ht <- waffle_svy %>%  
+# waffle_svy %>%  
 #   filter(marco == "Married") %>%
 #   survey:: svychisq(~money+parent,., statistic="Chisq")
 
@@ -133,11 +134,18 @@ waffle_svy %>%
 waffle_svy %>%
   tbl_strata(strata = marco,~.x %>%
                tbl_svysummary(by = money, include = c(parent, couple, age),
-                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
-                              percent = 'row') %>%
+                              statistic = all_categorical() ~ "{n_unweighted} [{n}]") %>%
                add_p(test = everything() ~ "svy.adj.chisq.test")) %>%
-  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}** <br> (n ={n_unweighted})")) %>%
-  modify_caption("**Table 2. Bivariate statistics within marital groups**")
+  modify_header(update = list(
+    stat_1_1 ~ "**Put all money together**",
+    stat_1_2 ~ "**Put all money together**",
+    stat_2_1 ~ "**Put some money together**",
+    stat_2_2 ~ "**Put some money together**",
+    stat_3_1 ~ "**Keep all money separate**",   
+    stat_3_2 ~ "**Keep all money separate**")) %>%
+  modify_caption("**Table 2. Chi-square tests within marital groups** <br>unweighted n [weighted n]") %>%
+  modify_header(label = "**Variable**")
+
 
 ## Between marital status
 htest_svy <- data %>% # reshape data
@@ -151,14 +159,17 @@ htest_svy <- data %>% # reshape data
 htest_svy %>%
   tbl_strata(strata = level,~.x %>%
                tbl_svysummary(by = money, include = c(marco),
-                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
-                              percent = 'row',
+                              statistic = all_categorical() ~ "{n_unweighted} [{n}]",
                               label = list(marco    ~ " ")) %>%
                add_p(test = everything() ~ "svy.adj.chisq.test"),
              .combine_with = "tbl_stack",
              .quiet = TRUE) %>%
-  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}**")) %>%
-  modify_caption("**Table 3. Bivariate statistics between marital groups**")
+  modify_header(update = list(
+                              stat_1 ~ "**Put all money together**",
+                              stat_2 ~ "**Put some money together**",
+                              stat_3 ~ "**Keep all money separate**")) %>%
+  modify_caption("**Table 3.Chi-square tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
+  modify_header(label = "**Variable**")
 
 # CREATE FIGURE DATA -------------------------------------------------------------
 ## Create bivariate statistics
@@ -183,7 +194,7 @@ df1 <- waffle_svy %>%
 
 # parents
 df2 <- waffle_svy %>%
-  group_by(marco,parent, money) %>%
+  group_by(marco, parent, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
          group    = "parent") %>%
@@ -191,7 +202,7 @@ df2 <- waffle_svy %>%
 
 # couple type
 df3 <- waffle_svy %>%
-  group_by(marco,couple, money) %>%
+  group_by(marco, couple, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
          group    = "couple") %>%
@@ -199,7 +210,7 @@ df3 <- waffle_svy %>%
 
 # age groups
 df4 <- waffle_svy %>%
-  group_by(marco,age, money) %>%
+  group_by(marco, age, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
          group    = "age") %>%
@@ -257,7 +268,6 @@ p1<- waffle_data %>%
   facet_wrap(vars(c), ncol = 6) +
   scale_fill_manual(values = sequential_hcl(3, palette = "OrYel")) +
   coord_fixed(ratio = 1) +
-  #  guides(fill = guide_legend(reverse = TRUE)) + # fct_rev()
   theme_minimal() +
   theme(panel.grid      = element_blank(),
         axis.title      = element_blank(),
@@ -278,8 +288,8 @@ p1<- waffle_data %>%
        Chi-square tests confirm all demographic group comparisons between married and cohabiting couples are statistically significant (p < .05).
        Among married couples, parents and different-gender couples are more likely than their counterparts to report they 'put all money together' (p < .05).
        There are no statistically significant differences by demographic group among cohabiting couples. 
-       Additional details about data, variable construction, cell sizes and distribution, and chi-square tests 
-       between and within marital groups, is available in the Online Supplement.") 
+       Additional details about data access, variable construction, cell sizes and distribution, and chi-square tests 
+       between and within marital groups, is available at: https:&#47;&#47;github.com&#47;jrpepin&#47;NCHAT_Money.") 
 
 p1 # view the plot
 

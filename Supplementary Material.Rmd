@@ -8,9 +8,7 @@ knit: (function(inputFile, encoding) {
 output:
   html_document:
     df_print: paged
-  word_document: default
-  pdf_document: default
-bibliography: references.json
+  bibliography: references.json
 ---
   
 ```{r setup, echo = FALSE}
@@ -57,9 +55,12 @@ dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
 
 ```
   
+Full replication code for data access, variable construction, cell sizes and distribution, chi-square tests, and data visualization creation is available in a Github repository: [https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
   
-# Data  
-This visualization uses population-based U.S. data from the 2020–2021 [National Couples' Health and Time Study](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel, including an over sample of sexual and gender diverse families. When weighted, the survey provides nationally representative data on cohabiting and married individuals (aged 20-60).  
+  
+# Data ------------------------------------------------------------------------  
+  
+This visualization uses population-based U.S. data from the 2020–2021 [National Couples' Health and Time Study](https://osf.io/preprints/socarxiv/p8a34/), downloaded from [ICPSR (study #: 38417)](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel. Sexual and gender diverse families were over-sampled in order to provide high-quality, population-representative data of same- and different-gender couples. When weighted, the survey provides nationally representative data on cohabiting and married individuals (aged 20-60).  
   
 ```{r data-1, echo=FALSE, eval = FALSE}
 # The icpsr_download function will ask for the login information required by ICPSR: the user’s email and password.
@@ -83,14 +84,14 @@ data <- da38417.0001 %>%
          AGE_SD)
 ```
   
-```{r data-3}
+```{r data-3, echo=FALSE, results= 'hide'}
   
 glimpse(data)  
   
 ```
   
   
-# Measures  
+# Measures ------------------------------------------------------------------  
   
 ```{r vars-1, echo=FALSE}
 ### creates a function so level order remains the same as argument order
@@ -118,7 +119,7 @@ Two variables were used to identify the couple type: D2 (Which of the following 
 ## _Age group_
 The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20-60. Therefore, the categories were recoded to reflect the true top/bottom ages (partner's age may be younger/older). The refusal rate for this item was 1.6% (n = 57).  
   
-```{r vars-2}
+```{r vars-2, echo=FALSE, results= 'hide'}
 
 ## Process variables
 data <- data %>%
@@ -155,11 +156,13 @@ glimpse(data)
 ```
   
   
-# Sample  
-
-This data visualization is based on same- and different-gender U.S. couples aged 20–60 who had no missing information regarding their money arrangements, marital and parental status, and age group. The final sample included 3,396 partnered individuals. More details about the sample recruitment can be found [online](https://osf.io/preprints/socarxiv/p8a34/).  
+# Sample --------------------------------------------------------------------  
   
-```{r survey}
+This data visualization is based on same- and different-gender U.S. couples (aged 20–60) who had no missing information regarding their money arrangements, marital and parental status, and age group (243 cased dropped). The final sample included 3,396 partnered individuals. More details about the sample recruitment can be found online: [https://osf.io/preprints/socarxiv/p8a34/](https://osf.io/preprints/socarxiv/p8a34/).  
+  
+### Table 1.  
+  
+```{r survey, echo=FALSE}
 
 waffle_svy <- data %>%
   as_survey_design(id = RESPONSEID,
@@ -167,14 +170,15 @@ waffle_svy <- data %>%
 
 waffle_svy %>%
   select(c(-RESPONSEID, -WEIGHT_MAINRESPONDENT)) %>%
-  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
+  tbl_svysummary(statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
                  label = list(money    ~ "Money Treatment",
                               marco    ~ "Marital Status",
                               parent   ~ "Parental Status",
                               couple   ~ "Couple Type",
                               age      ~ "Age")) %>%
   modify_header(update = stat_0 ~ "**N = {N_unweighted}**") %>%
-  modify_caption("**Table 1. Summary statistics of the analytic sample**")
+  modify_caption("**Summary statistics of the analytic sample (unweighted)**") %>%
+  modify_header(label = "**Variable**")
  
 ```
   
@@ -182,58 +186,77 @@ waffle_svy %>%
 <p>    
   
   
-# CHI-SQUARE TESTS -----------------------------------------------------------------------
+# CHI-SQUARE TESTS ---------------------------------------------  
+  
 A series of chi-square tests were conducted to test for statistical differences within and between married and cohabiting respondents.  
-The tables show unweighted frequencies to provide information about the cell sizes. The chi-square tests are weighted, accounting for the oversampling in the recruitment of respondents for the survey.  
+The tables show unweighted and weighted frequencies to provide information about the cell sizes. The chi-square tests use the survey weight, accounting for the oversampling in the recruitment of respondents for the survey.  
   
   
-```{r chisquare}
+### Table 2.  
+  
+```{r chisquare-1, echo=FALSE}
   
 ## Within marital status
 waffle_svy %>%
   tbl_strata(strata = marco,~.x %>%
                tbl_svysummary(by = money, include = c(parent, couple, age),
-                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
-                              percent = 'row') %>%
+                              statistic = all_categorical() ~ "{n_unweighted} [{n}]") %>%
                add_p(test = everything() ~ "svy.adj.chisq.test")) %>%
-  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}** <br> (n ={n_unweighted})")) %>%
-  modify_caption("**Table 2. Bivariate statistics within marital groups**")
+  modify_header(update = list(
+    stat_1_1 ~ "**Put all money together**",
+    stat_1_2 ~ "**Put all money together**",
+    stat_2_1 ~ "**Put some money together**",
+    stat_2_2 ~ "**Put some money together**",
+    stat_3_1 ~ "**Keep all money separate**",   
+    stat_3_2 ~ "**Keep all money separate**")) %>%
+  modify_caption("**Chi-square tests within marital groups** <br>unweighted n [weighted n]") %>%
+  modify_header(label = "**Variable**")  
   
   
+```  
   
-## Between marital status
+  
+### Table 3.  
+  
+```{r chisquare-2, echo=FALSE}
+  
+  
+## Between marital status  
 htest_svy <- data %>% # reshape data
   pivot_longer(
     cols = c(parent, couple, age),
     names_to = "subgroup",
     values_to = "level") %>%
   as_survey_design(id = RESPONSEID,
-                   weights = WEIGHT_MAINRESPONDENT)
-
+                   weights = WEIGHT_MAINRESPONDENT)  
+  
+  
 htest_svy %>%
   tbl_strata(strata = level,~.x %>%
                tbl_svysummary(by = money, include = c(marco),
-                              statistic = all_categorical() ~ "{n_unweighted} ({p_unweighted}%)",
-                              percent = 'row',
+                              statistic = all_categorical() ~ "{n_unweighted} [{n}]",
                               label = list(marco    ~ " ")) %>%
                add_p(test = everything() ~ "svy.adj.chisq.test"),
              .combine_with = "tbl_stack",
              .quiet = TRUE) %>%
-  modify_header(list(label~ "**Variable**", all_stat_cols()~ "**{level}**")) %>%
-  modify_caption("**Table 3. Bivariate statistics between marital groups**")
-  
+  modify_header(update = list(
+                              stat_1 ~ "**Put all money together**",
+                              stat_2 ~ "**Put some money together**",
+                              stat_3 ~ "**Keep all money separate**")) %>%
+  modify_caption("**Chi-square tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
+  modify_header(label = "**Variable**")  
   
 ```
   
-<p>  
+<p> 
 <p>    
   
   
-# Figure Data
+# Figure Data ---------------------------------------------------------------    
   
 The bivariate statistics used in the figure were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling of specific target populations. 
   
-```{r waffle-1, results='hide'}
+```{r waffle-1, results='hide', echo=FALSE}
 
 # all -- just for reference
 df0 <- waffle_svy %>%
@@ -257,7 +280,7 @@ df1 <- waffle_svy %>%
 
 # parents
 df2 <- waffle_svy %>%
-  group_by(marco,parent, money) %>%
+  group_by(marco, parent, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), 
          group    = "parent") %>%
@@ -265,7 +288,7 @@ df2 <- waffle_svy %>%
 
 # couple type
 df3 <- waffle_svy %>%
-  group_by(marco,couple, money) %>%
+  group_by(marco, couple, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), 
          group    = "couple") %>%
@@ -273,7 +296,7 @@ df3 <- waffle_svy %>%
 
 # age groups
 df4 <- waffle_svy %>%
-  group_by(marco,age, money) %>%
+  group_by(marco, age, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), 
          group    = "age") %>%
@@ -289,4 +312,8 @@ waffle_data <- df1 %>%
 
 ```
   
-Full replication code for data access, variable construction, and data visualization creation is available in the [github repository](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
+```{r waffle-2, echo=FALSE}
+  
+head(waffle_data, n = 54) # to check results  
+  
+```
