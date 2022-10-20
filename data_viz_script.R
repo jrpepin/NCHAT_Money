@@ -189,7 +189,7 @@ df1 <- waffle_svy %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
          vals_low = MESS::round_percent(vals_low), 
          vals_upp = MESS::round_percent(vals_upp), 
-         group    = "parent",
+         group    = "parent", # to graph on same line as parents
          subgroup = "All")
 
 # parents
@@ -197,6 +197,8 @@ df2 <- waffle_svy %>%
   group_by(marco, parent, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp), 
          group    = "parent") %>%
   rename(subgroup = parent)
 
@@ -205,6 +207,9 @@ df3 <- waffle_svy %>%
   group_by(marco, couple, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         vals_low = if_else(vals_low < 0, 0, vals_low), # round negative value to zero
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp), 
          group    = "couple") %>%
   rename(subgroup = couple)
 
@@ -213,6 +218,8 @@ df4 <- waffle_svy %>%
   group_by(marco, age, money) %>%
   summarize(vals  = survey_mean(na.rm = TRUE, vartype = "ci")) %>%
   mutate(vals     = MESS::round_percent(vals), # round with preserving to 100%
+         vals_low = MESS::round_percent(vals_low), 
+         vals_upp = MESS::round_percent(vals_upp), 
          group    = "age") %>%
   rename(subgroup = age)
 
