@@ -9,10 +9,8 @@ knit: (function(inputFile, encoding) {
                         output_file='index.html',
                         output_dir=file.path(dirname(inputFile), out_dir))})
 output:
-  html_document:
+   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 bibliography: references.json
 ---
 
