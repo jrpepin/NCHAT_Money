@@ -11,4 +11,4 @@ by marital status, parental status, age group, and for different-gender and same
 <p>  
 
 ## Replication
-To replicate the findings, users should first open the .RProject file and then the data_viz_script.R file.
+To replicate the data visualization and the supplementary tables, users should open the .RProject file and then run the data_viz_script.R file.
