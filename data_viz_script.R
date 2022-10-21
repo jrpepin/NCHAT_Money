@@ -124,7 +124,7 @@ waffle_svy %>%
   modify_caption("**Table 1. Summary statistics of the analytic sample (unweighted)**") %>%
   modify_header(label = "**Variable**")
 
-# CHI-SQUARE TESTS -----------------------------------------------------------------------
+# CHI-SQUARED TESTS -----------------------------------------------------------------------
 # the statistics below match the output from survey::svychisq using statistic = "Chisq"
 # waffle_svy %>%  
 #   filter(marco == "Married") %>%
@@ -143,7 +143,7 @@ waffle_svy %>%
     stat_2_2 ~ "**Put some money together**",
     stat_3_1 ~ "**Keep all money separate**",   
     stat_3_2 ~ "**Keep all money separate**")) %>%
-  modify_caption("**Table 2. Chi-square tests within marital groups** <br>unweighted n [weighted n]") %>%
+  modify_caption("**Table 2. Chi-squared tests within marital groups** <br>unweighted n [weighted n]") %>%
   modify_header(label = "**Variable**")
 
 
@@ -168,7 +168,7 @@ htest_svy %>%
                               stat_1 ~ "**Put all money together**",
                               stat_2 ~ "**Put some money together**",
                               stat_3 ~ "**Keep all money separate**")) %>%
-  modify_caption("**Table 3.Chi-square tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
+  modify_caption("**Table 3.Chi-squared tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
   modify_header(label = "**Variable**")
 
 # CREATE FIGURE DATA -------------------------------------------------------------
@@ -292,11 +292,11 @@ p1<- waffle_data %>%
        caption = "**Figure 1.** Data are from the National Couples' Health and Time Study (U.S.), 2020-2021. 
        Sampling weights are used to adjust for the complex sampling process of the survey, 
        such as the oversample of sexual and gender diverse families.
-       Chi-square tests confirm all demographic group comparisons between married and cohabiting couples are statistically significant (p < .05).
-       Among married couples, parents and different-gender couples are more likely than their counterparts to report they 'put all money together' (p < .05).
+       Chi-squared tests confirm all demographic group comparisons between married and cohabiting couples are statistically significant (p<.05).
+       Among married couples, parents and different-gender couples are more likely than their counterparts to report they 'put all money together' (p<.05).
        There are no statistically significant differences by demographic group among cohabiting couples. 
-       Additional details about data access, variable construction, cell sizes and distribution, and chi-square tests 
-       between and within marital groups, is available at: https:&#47;&#47;github.com&#47;jrpepin&#47;NCHAT_Money.") 
+       Additional details about data access, variable construction, cell sizes and distribution, and chi-squared tests 
+       between and within marital groups are available at: https:&#47;&#47;github.com&#47;jrpepin&#47;NCHAT_Money.") 
 
 p1 # view the plot
 

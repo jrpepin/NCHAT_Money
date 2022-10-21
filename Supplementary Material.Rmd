@@ -55,12 +55,12 @@ dataDir <- "./../../Data/NCHAT"     # File path to where data will be downloaded
 
 ```
   
-Full replication code for data access, variable construction, cell sizes and distribution, chi-square tests, and data visualization creation is available in a Github repository: [https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
+Full replication code for data access, variable construction, cell sizes and distribution, chi-squared tests, and data visualization creation is available in a Github repository: [https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R](https://github.com/jrpepin/NCHAT_Money/blob/master/data_viz_script.R).  
   
   
 # Data ------------------------------------------------------------------------  
   
-This visualization uses population-based U.S. data from the 2020–2021 [National Couples' Health and Time Study](https://osf.io/preprints/socarxiv/p8a34/), downloaded from [ICPSR (study #: 38417)](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel. Sexual and gender diverse families were over-sampled in order to provide high-quality, population-representative data of same- and different-gender couples. When weighted, the survey provides nationally representative data on cohabiting and married individuals (aged 20-60).  
+This visualization uses population-based U.S. data from the 2020–2021 [National Couples' Health and Time Study](https://osf.io/preprints/socarxiv/p8a34/), downloaded from [ICPSR (study #: 38417)](https://www.icpsr.umich.edu/web/DSDR/studies/38417). The Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD) supported the data collection of 3,639 partnered individuals through the Gallup Panel. Sexual and gender diverse families were oversampled in order to provide high-quality, population-representative data of same- and different-gender couples. When weighted, the survey provides nationally representative data on cohabiting and married individuals (aged 20–60).  
   
 ```{r data-1, echo=FALSE, eval = FALSE}
 # The icpsr_download function will ask for the login information required by ICPSR: the user’s email and password.
@@ -105,19 +105,19 @@ fct_case_when <- function(...) {
   
   
 ## _Money arrangement_  
-Respondents were told: "Couples handle their money differently. Which of the following do you do?" The response choices were: (1) We keep all of our money separately, (2) Put some money together, or (3) Put all of our money together.  Only 6 (.2%) respondents refused to answer the question item.  
+Respondents were told: “Couples handle their money differently. Which of the following do you do?” The response choices were: (1) We keep all of our money separately, (2) Put some money together, or (3) Put all of our money together. Only 6 (.2%) respondents refused to answer the question item.
 
 ##  _Marital status_
-This visualization uses legal marriage status to differentiate married and cohabiting couples. Respondents who answered affirmatively when asked "Have you and your current spouse/partner ever experienced any of the following with each other? Legal marriage" were considered legally married. Four respondents refused to answer the question.   
+This visualization uses legal marriage status to differentiate married and cohabiting couples. Respondents who answered affirmatively when asked “Have you and your current spouse/partner ever experienced any of the following with each other? Legal marriage” were considered legally married. Four respondents refused to answer the question.   
   
 ## _Parental status_  
-The direct parent identifiers are only available through a restricted Virtual Data Enclave, requiring institutional IRB approval and an application. With reproducibility a priority, parents were instead identified using the skip logic of a publicly available variable on respondents’ stress over dividing childcare with their partner. Respondents who were not shown the question (C18D_B) were determined to be not-parenting and those shown the question were coded as parenting.  
+The direct parent identifiers are only available through a restricted Virtual Data Enclave, requiring institutional IRB approval and an application. With reproducibility a priority, parents were instead identified using the skip logic of a publicly available variable on respondents’ stress over dividing childcare with their partner. Respondents who were not shown the question (C18D_B) were determined to be not-parenting and those shown the question were coded as parenting.
   
 ## _Couple type_  
-Two variables were used to identify the couple type: D2 (Which of the following best describes your gender?) and HHR5 (How would [Field-HHP1] describe their gender?). Women who reported their partner was a man (and vice versa) were coded as different-gender couples. Men who reported their partner was a man and women who reported their partner was a woman were coded as same-gender couples. Respondents who chose another gender for themselves or their partners were not included in this data visualization.
+Two variables were used to identify the couple type: D2 (“Which of the following best describes your gender?”) and HHR5 (“How would [Field-HHP1] describe their gender?”). Women who reported their partner was a man (and vice versa) were coded as different-gender couples. Men who reported their partner was a man and women who reported their partner was a woman were coded as same-gender couples. Respondents who chose another gender for themselves or their partners were not included in this data visualization.
   
 ## _Age group_
-The survey contained a variable (AGE_SD) indicating the respondents' age was between one of three ranges: (1) 18-34, (2) 35-50, or (3) 51-69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20-60. Therefore, the categories were recoded to reflect the true top/bottom ages (partner's age may be younger/older). The refusal rate for this item was 1.6% (n = 57).  
+The survey contained a variable (AGE_SD) indicating the respondents’ age was between one of three ranges: (1) 18–34, (2) 35–50, or (3) 51–69. The codebook and another variable (AGE_SD_2CAT) indicate the possible age range for main respondents is 20–60. Therefore, the categories were recoded to reflect the codebook top/bottom ages (partner’s age may be younger/older). The refusal rate for this item was 1.6% (n=57).
   
 ```{r vars-2, echo=FALSE, results= 'hide'}
 
@@ -186,10 +186,9 @@ waffle_svy %>%
 <p>    
   
   
-# CHI-SQUARE TESTS ---------------------------------------------  
+# CHI-SQUARED TESTS --------------------------------------------  
   
-A series of chi-square tests were conducted to test for statistical differences within and between married and cohabiting respondents.  
-The tables show unweighted and weighted frequencies to provide information about the cell sizes. The chi-square tests use the survey weight, accounting for the oversampling in the recruitment of respondents for the survey.  
+A series of chi-squared tests were conducted to test for statistical differences within and between married and cohabiting respondents. The tables show unweighted and weighted frequencies to provide information about the cell sizes. The chi-squared tests use the survey weight, accounting for the oversampling in recruitment of respondents for the survey. 
   
   
 ### Table 2.  
@@ -209,7 +208,7 @@ waffle_svy %>%
     stat_2_2 ~ "**Put some money together**",
     stat_3_1 ~ "**Keep all money separate**",   
     stat_3_2 ~ "**Keep all money separate**")) %>%
-  modify_caption("**Chi-square tests within marital groups** <br>unweighted n [weighted n]") %>%
+  modify_caption("**Chi-squared tests within marital groups** <br>unweighted n [weighted n]") %>%
   modify_header(label = "**Variable**")  
   
   
@@ -243,7 +242,7 @@ htest_svy %>%
                               stat_1 ~ "**Put all money together**",
                               stat_2 ~ "**Put some money together**",
                               stat_3 ~ "**Keep all money separate**")) %>%
-  modify_caption("**Chi-square tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
+  modify_caption("**Chi-squared tests within demographic group by marital status** <br>unweighted n [weighted n]") %>%
   modify_header(label = "**Variable**")  
   
 ```
@@ -254,7 +253,7 @@ htest_svy %>%
   
 # Figure Data ---------------------------------------------------------------    
   
-The bivariate statistics used in the figure were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or under-sampling of specific target populations. 
+The bivariate statistics used in the figure were constructed using the survey-provided variable (WEIGHT_MAINRESPONDENT) to correct for over- or undersampling of specific target populations.  
   
 ```{r waffle-1, results='hide', echo=FALSE}
 
